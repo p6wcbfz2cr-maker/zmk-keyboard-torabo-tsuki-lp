@@ -98,14 +98,18 @@
         #input-processor-cells = <2>;
         require-prior-idle-ms = <500>;
         excluded-positions = <
-            46 // N
-            47 // M
-            48 // ,
-            49 // .
-            50 // /
+            // L size layout indices
+            46 47 48 49 50
+            // M size layout indices
+            32 33 34 35 36
+            // S size layout indices
+            27 28 29 30 31
+            // Local un-offset right half indices (just in case)
+            39 40 41 42 43
         >;
     };
 };
+
 
 &mt {
     tapping-term-ms = <300>; /* 300ミリ秒以上長押しでHold判定 */
