@@ -113,6 +113,7 @@
 
 &mt {
     tapping-term-ms = <300>; /* 300ミリ秒以上長押しでHold判定 */
+    flavor = "tap-preferred"; /* 他のキーと被っても、300ms以内に離せばTap優先 */
 };
 
 &pointing_listener {
