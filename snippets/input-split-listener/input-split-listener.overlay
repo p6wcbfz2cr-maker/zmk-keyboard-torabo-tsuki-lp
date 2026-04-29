@@ -18,7 +18,7 @@
             <&zip_temp_layer 5 5000>,
             <&zip_xy_scaler 60 100>;
 
-        scroll {
+        scroller {
             layers = <6>;
             input-processors =
                 <&zip_xy_transform (INPUT_TRANSFORM_X_INVERT | INPUT_TRANSFORM_Y_INVERT)>,
