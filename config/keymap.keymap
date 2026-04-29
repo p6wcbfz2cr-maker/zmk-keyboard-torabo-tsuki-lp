@@ -102,6 +102,8 @@
 &pointing_listener {
     input-processors = 
         <&zip_xy_transform (INPUT_TRANSFORM_X_INVERT | INPUT_TRANSFORM_Y_INVERT)>,
-        <&zip_temp_layer 5 2000>;
+        <&zip_temp_layer 5 2000>,
+        <&zip_xy_scaler 1 2>;
 };
+
 
