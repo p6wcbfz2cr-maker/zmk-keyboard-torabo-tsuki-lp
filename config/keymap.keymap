@@ -92,6 +92,10 @@
     };
 };
 
+&mt {
+    tapping-term-ms = <100>; /* 100ミリ秒以上長押しでHold判定 */
+};
+
 / {
     zip_temp_layer: zip_temp_layer {
         compatible = "zmk,input-processor-temp-layer";
