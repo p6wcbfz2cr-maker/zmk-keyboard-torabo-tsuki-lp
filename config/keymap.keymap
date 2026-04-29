@@ -96,14 +96,14 @@
     zip_temp_layer: zip_temp_layer {
         compatible = "zmk,input-processor-temp-layer";
         #input-processor-cells = <2>;
+        require-prior-idle-ms = <500>;
     };
 };
 
 &pointing_listener {
     input-processors = 
         <&zip_xy_transform (INPUT_TRANSFORM_X_INVERT | INPUT_TRANSFORM_Y_INVERT)>,
-        <&zip_temp_layer 5 2000>,
-        <&zip_xy_scaler 1 2>;
+        <&zip_temp_layer 5 10000>,
+        <&zip_xy_scaler 75 100>;
 };
-
 
