@@ -92,16 +92,23 @@
     };
 };
 
-&mt {
-    tapping-term-ms = <100>; /* 100ミリ秒以上長押しでHold判定 */
-};
-
 / {
     zip_temp_layer: zip_temp_layer {
         compatible = "zmk,input-processor-temp-layer";
         #input-processor-cells = <2>;
-        require-prior-idle-ms = <250>;
+        require-prior-idle-ms = <500>;
+        excluded-positions = <
+            46 // N
+            47 // M
+            48 // ,
+            49 // .
+            50 // /
+        >;
     };
+};
+
+&mt {
+    tapping-term-ms = <300>; /* 300ミリ秒以上長押しでHold判定 */
 };
 
 &pointing_listener {
