@@ -112,8 +112,8 @@
 };
 
 &mt {
-     tapping-term-ms = <200>; /* 300ミリ秒以上長押しでHold判定 */
-    flavor = "balanced"; /* 他のキーと被っても、300ms以内に離せばTap優先 */
+     tapping-term-ms = <200>; /* 200ミリ秒以上長押しでHold判定 */
+    flavor = "balanced"; /* 他のキーと被っても、200ms以内に離せばTap優先 */
 };
 
 &pointing_listener {
@@ -126,7 +126,7 @@
         layers = <6>;
         input-processors =
             <&zip_xy_transform (INPUT_TRANSFORM_X_INVERT)>,
-            <&zip_xy_scaler 10 100>,
+            <&zip_xy_scaler 1 100>,
             <&zip_xy_to_scroll_mapper>,
             <&zip_scroll_snap>;
     };
