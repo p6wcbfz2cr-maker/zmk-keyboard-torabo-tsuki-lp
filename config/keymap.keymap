@@ -1,11 +1,11 @@
 #include <input/processors.dtsi>
 #include <dt-bindings/zmk/input_transform.h>
+#include <scroll-snap.dtsi>
 #include <behaviors.dtsi>
 #include <dt-bindings/zmk/bt.h>
 #include <dt-bindings/zmk/keys.h>
 #include <dt-bindings/zmk/outputs.h>
 #include <dt-bindings/zmk/pointing.h>
-#include <scroll-snap.dtsi>
 
 / {
     combos {
@@ -23,11 +23,11 @@
 
         Mac {
             bindings = <
-&none  &none                &none  &none         &none     &none                                                          &none        &none  &none      &none              &none                 &none
-&none  &kp Q                &kp W  &kp E         &kp R     &kp T                                                          &kp Y        &kp U  &kp I      &kp O              &kp P                 &none
-&none  &mt RIGHT_CONTROL A  &kp S  &kp D         &kp F     &kp G        &mkp LCLK                  &mkp RCLK              &kp H        &kp J  &kp K      &kp L              &kp SEMI              &none
-&none  &mt LEFT_SHIFT Z     &kp X  &kp C         &kp V     &kp B        &kp SPACE                  &kp RET                &kp N        &kp M  &kp COMMA  &kp DOT            &mt RIGHT_SHIFT FSLH  &none
-&none  &kp LCTRL            &kp LEFT_ALT  &kp LEFT_GUI  &kp BSPC  &lt 2 SPACE  &mt LEFT_SHIFT LANGUAGE_2  &mt RSHIFT LANGUAGE_1  &lt 3 SPACE  &none      &none      &kp I   &lt 6 ENTER           &none
+&none  &none                &none         &none         &none     &none                                                          &none        &none  &none      &none    &none                 &none
+&none  &kp Q                &kp W         &kp E         &kp R     &kp T                                                          &kp Y        &kp U  &kp I      &kp O    &kp P                 &none
+&none  &mt RIGHT_CONTROL A  &kp S         &kp D         &kp F     &kp G        &mkp LCLK                  &mkp RCLK              &kp H        &kp J  &kp K      &kp L    &kp SEMI              &none
+&none  &mt LEFT_SHIFT Z     &kp X         &kp C         &kp V     &kp B        &kp SPACE                  &kp RET                &kp N        &kp M  &kp COMMA  &kp DOT  &mt RIGHT_SHIFT FSLH  &none
+&none  &kp LCTRL            &kp LEFT_ALT  &kp LEFT_GUI  &kp BSPC  &lt 2 SPACE  &mt LEFT_SHIFT LANGUAGE_2  &mt RSHIFT LANGUAGE_1  &lt 3 SPACE  &none  &none      &kp I    &lt 6 ENTER           &none
             >;
         };
 
@@ -53,11 +53,11 @@
 
         Function {
             bindings = <
-&trans  &trans   &trans   &trans        &trans          &trans                      &trans            &trans    &trans        &trans     &trans         &trans
-&trans  &kp F1   &kp F2   &kp F3        &kp F4          &kp F5                      &kp HOME          &kp HOME  &kp UP_ARROW  &kp END    &kp PAGE_UP    &trans
-&trans  &kp F6   &kp F7   &kp F8        &kp F9          &kp F10     &trans  &trans  &kp BACKSPACE     &kp LEFT  &kp DOWN      &kp RIGHT  &kp PAGE_DOWN  &trans
-&trans  &kp F11  &kp F12  &out OUT_USB  &out OUT_BLE    &bt BT_NXT  &trans  &trans  &kp SINGLE_QUOTE  &kp DQT   &kp GRAVE     &kp TILDE  &kp PIPE       &trans
-&trans  &trans   &trans   &trans        &kp LEFT_SHIFT  &kp DELETE  &trans  &trans  &trans            &trans    &trans        &trans     &trans         &trans
+&trans  &trans   &trans   &trans        &trans              &trans                               &trans            &trans    &trans        &trans     &trans         &trans
+&trans  &kp F1   &kp F2   &kp F3        &kp F4              &kp F5                               &kp HOME          &kp HOME  &kp UP_ARROW  &kp END    &kp PAGE_UP    &trans
+&trans  &kp F6   &kp F7   &kp F8        &kp F9              &kp F10              &trans  &trans  &kp BACKSPACE     &kp LEFT  &kp DOWN      &kp RIGHT  &kp PAGE_DOWN  &trans
+&trans  &kp F11  &kp F12  &out OUT_USB  &out OUT_BLE        &bt BT_NXT           &trans  &trans  &kp SINGLE_QUOTE  &kp DQT   &kp GRAVE     &kp TILDE  &kp PIPE       &trans
+&trans  &trans   &trans   &trans        &kp LC(LEFT_ARROW)  &kp LC(RIGHT_ARROW)  &trans  &trans  &trans            &trans    &trans        &trans     &trans         &trans
             >;
         };
 
@@ -112,7 +112,7 @@
 };
 
 &mt {
-     tapping-term-ms = <200>; /* 200ミリ秒以上長押しでHold判定 */
+    tapping-term-ms = <200>; /* 200ミリ秒以上長押しでHold判定 */
     flavor = "balanced"; /* 他のキーと被っても、200ms以内に離せばTap優先 */
 };
 
