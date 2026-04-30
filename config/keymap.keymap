@@ -27,7 +27,7 @@
 &none  &kp Q                &kp W  &kp E         &kp R     &kp T                                                          &kp Y        &kp U  &kp I      &kp O              &kp P                 &none
 &none  &mt RIGHT_CONTROL A  &kp S  &kp D         &kp F     &kp G        &mkp LCLK                  &mkp RCLK              &kp H        &kp J  &kp K      &kp L              &kp SEMI              &none
 &none  &mt LEFT_SHIFT Z     &kp X  &kp C         &kp V     &kp B        &kp SPACE                  &kp RET                &kp N        &kp M  &kp COMMA  &kp DOT            &mt RIGHT_SHIFT FSLH  &none
-&none  &kp LCTRL            &mo 6  &kp LEFT_GUI  &kp BSPC  &lt 2 SPACE  &mt LEFT_SHIFT LANGUAGE_2  &mt RSHIFT LANGUAGE_1  &lt 3 SPACE  &mo 6  &mo 6      &lt 6 RIGHT_SHIFT  &lt 6 ENTER           &none
+&none  &kp LCTRL            &kp LEFT_ALT  &kp LEFT_GUI  &kp BSPC  &lt 2 SPACE  &mt LEFT_SHIFT LANGUAGE_2  &mt RSHIFT LANGUAGE_1  &lt 3 SPACE  &none      &none      &lt 6 RIGHT_SHIFT  &lt 6 ENTER           &none
             >;
         };
 
@@ -112,8 +112,8 @@
 };
 
 &mt {
-    tapping-term-ms = <2002>; /* 300ミリ秒以上長押しでHold判定 */
-    flavor = "tap-preferred"; /* 他のキーと被っても、300ms以内に離せばTap優先 */
+     tapping-term-ms = <200>; /* 300ミリ秒以上長押しでHold判定 */
+    flavor = "balanced"; /* 他のキーと被っても、300ms以内に離せばTap優先 */
 };
 
 &pointing_listener {
