@@ -27,7 +27,7 @@
 &none  &kp Q                &kp W  &kp E         &kp R     &kp T                                                          &kp Y        &kp U  &kp I      &kp O              &kp P                 &none
 &none  &mt RIGHT_CONTROL A  &kp S  &kp D         &kp F     &kp G        &mkp LCLK                  &mkp RCLK              &kp H        &kp J  &kp K      &kp L              &kp SEMI              &none
 &none  &mt LEFT_SHIFT Z     &kp X  &kp C         &kp V     &kp B        &kp SPACE                  &kp RET                &kp N        &kp M  &kp COMMA  &kp DOT            &mt RIGHT_SHIFT FSLH  &none
-&none  &kp LCTRL            &kp LEFT_ALT  &kp LEFT_GUI  &kp BSPC  &lt 2 SPACE  &mt LEFT_SHIFT LANGUAGE_2  &mt RSHIFT LANGUAGE_1  &lt 3 SPACE  &none      &none      &lt 6 RIGHT_SHIFT  &lt 6 ENTER           &none
+&none  &kp LCTRL            &kp LEFT_ALT  &kp LEFT_GUI  &kp BSPC  &lt 2 SPACE  &mt LEFT_SHIFT LANGUAGE_2  &mt RSHIFT LANGUAGE_1  &lt 3 SPACE  &none      &none      &kp I   &lt 6 ENTER           &none
             >;
         };
 
@@ -126,7 +126,7 @@
         layers = <6>;
         input-processors =
             <&zip_xy_transform (INPUT_TRANSFORM_X_INVERT)>,
-            <&zip_xy_scaler 1 5>,
+            <&zip_xy_scaler 10 100>,
             <&zip_xy_to_scroll_mapper>,
             <&zip_scroll_snap>;
     };
