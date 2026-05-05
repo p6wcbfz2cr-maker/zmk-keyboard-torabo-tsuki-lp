@@ -23,10 +23,10 @@
         Mac {
             bindings = <
 &none  &none                &none         &none         &none     &none                                                          &none        &none  &none      &none    &none                        &none
-&none  &kp Q                &kp W         &kp E         &kp R     &kp T                                                          &kp Y        &kp U  &kp I      &kp O    &kp P                        &kt NUMBER_4
-&none  &mt RIGHT_CONTROL A  &kp S         &kp D         &kp F     &kp G        &none                      &none                  &kp H        &kp J  &kp K      &kp L    &mt RIGHT_SHIFT SEMICOLON    &kt NUMBER_3
-&none  &mt LEFT_SHIFT Z     &kp X         &kp C         &kp V     &kp B        &kp SPACE                  &kp ESCAPE             &kp N        &kp M  &kp COMMA  &kp DOT  &lt 6 ENTER                  &kt NUMBER_2
-&none  &kp LCTRL            &kp LEFT_ALT  &kp LEFT_GUI  &kp BSPC  &lt 2 SPACE  &mt LEFT_SHIFT LANGUAGE_2  &mt RSHIFT LANGUAGE_1  &lt 3 SPACE  &kp B  &kp A      &kp I    &mt RIGHT_CONTROL SEMICOLON  &kp NUMBER_1
+&none  &kp Q                &kp W         &kp E         &kp R     &kp T                                                          &kp Y        &kp U  &kp I      &kp O    &kp P                        &none
+&none  &mt RIGHT_CONTROL A  &kp S         &kp D         &kp F     &kp G        &none                      &none                  &kp H        &kp J  &kp K      &kp L    &mt RIGHT_SHIFT SEMICOLON    &none
+&none  &mt LEFT_SHIFT Z     &kp X         &kp C         &kp V     &kp B        &kp SPACE                  &kp ESCAPE             &kp N        &kp M  &kp COMMA  &kp DOT  &lt 6 ENTER                  &none
+&none  &kp LCTRL            &kp LEFT_ALT  &kp LEFT_GUI  &kp BSPC  &lt 2 SPACE  &mt LEFT_SHIFT LANGUAGE_2  &mt RSHIFT LANGUAGE_1  &lt 3 SPACE  &none  &none      &none    &mt RIGHT_CONTROL SLASH  &none
             >;
         };
 
