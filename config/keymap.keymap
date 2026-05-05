@@ -26,7 +26,7 @@
 &none  &kp Q                &kp W         &kp E         &kp R     &kp T                                                          &kp Y        &kp U  &kp I      &kp O    &kp P                        &none
 &none  &mt RIGHT_CONTROL A  &kp S         &kp D         &kp F     &kp G        &none                      &none                  &kp H        &kp J  &kp K      &kp L    &mt RIGHT_SHIFT SEMICOLON    &none
 &none  &mt LEFT_SHIFT Z     &kp X         &kp C         &kp V     &kp B        &kp SPACE                  &kp ESCAPE             &kp N        &kp M  &kp COMMA  &kp DOT  &lt 6 ENTER                  &none
-&none  &kp LCTRL            &kp LEFT_ALT  &kp LEFT_GUI  &kp BSPC  &lt 2 SPACE  &mt LEFT_SHIFT LANGUAGE_2  &mt RSHIFT LANGUAGE_1  &lt 3 SPACE  &none  &none      &kp UP   &mt RIGHT_CONTROL SLASH  &none
+&none  &kp LCTRL            &kp LEFT_ALT  &kp LEFT_GUI  &kp BSPC  &lt 2 SPACE  &mt LEFT_SHIFT LANGUAGE_2  &mt RSHIFT LANGUAGE_1  &lt 3 SPACE  &kp N1 &kp N2     &kp N3   &mt RIGHT_CONTROL SLASH      &kp N5
             >;
         };
 
