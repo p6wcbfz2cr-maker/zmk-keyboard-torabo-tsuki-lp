@@ -22,21 +22,21 @@
 
         Mac {
             bindings = <
-&none  &none                &none         &none         &none     &none                                                          &none        &none  &none      &none    &none                        &none
-&none  &kp Q                &kp W         &kp E         &kp R     &kp T                                                          &kp Y        &kp U  &kp I      &kp O    &kp P                        &none
-&none  &mt RIGHT_CONTROL A  &kp S         &kp D         &kp F     &kp G        &none                      &none                  &kp H        &kp J  &kp K      &kp L    &mt RIGHT_SHIFT SEMICOLON    &none
-&none  &mt LEFT_SHIFT Z     &kp X         &kp C         &kp V     &kp B        &kp SPACE                  &kp ESCAPE             &kp N        &kp M  &kp COMMA  &kp DOT  &mt RIGHT_CONTROL SLASH      &none
-&none  &kp LCTRL            &kp LEFT_ALT  &kp LEFT_GUI  &kp BSPC  &lt 2 SPACE  &mt LEFT_SHIFT LANGUAGE_2  &mt RSHIFT LANGUAGE_1  &lt 3 SPACE  &none  &none      &none    &lt 6 ENTER                  &none
+&none  &none                &none         &none         &none     &none                                                          &none        &none  &none      &none    &none                      &none
+&none  &kp Q                &kp W         &kp E         &kp R     &kp T                                                          &kp Y        &kp U  &kp I      &kp O    &kp P                      &none
+&none  &mt RIGHT_CONTROL A  &kp S         &kp D         &kp F     &kp G        &none                      &none                  &kp H        &kp J  &kp K      &kp L    &mt RIGHT_SHIFT SEMICOLON  &none
+&none  &mt LEFT_SHIFT Z     &kp X         &kp C         &kp V     &kp B        &kp SPACE                  &kp ESCAPE             &kp N        &kp M  &kp COMMA  &kp DOT  &mt RIGHT_CONTROL SLASH    &none
+&none  &kp LCTRL            &kp LEFT_ALT  &kp LEFT_GUI  &kp BSPC  &lt 2 SPACE  &mt LEFT_SHIFT LANGUAGE_2  &mt RSHIFT LANGUAGE_1  &lt 3 SPACE  &none  &none      &none    &lt 6 ENTER                &none
             >;
         };
 
         layer_1 {
             bindings = <
-&trans  &trans  &trans  &trans     &trans     &trans                  &trans  &trans     &trans     &trans  &trans  &trans
-&trans  &trans  &trans  &trans     &trans     &trans                  &trans  &trans     &trans     &trans  &trans  &trans
-&trans  &trans  &trans  &mkp RCLK  &mkp LCLK  &trans  &trans  &trans  &trans  &mkp LCLK  &mkp RCLK  &trans  &trans  &trans
-&trans  &trans  &trans  &trans     &trans     &trans  &trans  &trans  &trans  &trans     &trans     &trans  &trans  &trans
-&trans  &trans  &trans  &trans     &trans     &trans  &trans  &trans  &trans  &trans     &trans     &trans  &trans  &trans
+&trans  &trans        &trans        &trans  &trans  &trans                  &trans  &trans  &trans  &trans  &trans  &trans
+&trans  &trans        &trans        &trans  &trans  &trans                  &trans  &trans  &trans  &trans  &trans  &trans
+&trans  &trans        &trans        &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans
+&trans  &trans        &trans        &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans
+&trans  &kp LEFT_WIN  &kp LEFT_ALT  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans
             >;
         };
 
@@ -124,7 +124,7 @@
     scroll {
         layers = <6>;
         input-processors =
-            //<&zip_xy_transform (INPUT_TRANSFORM_X_INVERT | INPUT_TRANSFORM_Y_INVERT)>,
+            //<&zip_xy_transform (INPUT_TRANSFORM_X_INVERT | INPUT_TRANSFORM_Y_INVERT)>,,
             <&zip_xy_scaler 2 100>,
             <&zip_xy_to_scroll_mapper>,
             <&zip_scroll_snap>;
