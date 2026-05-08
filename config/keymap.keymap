@@ -32,11 +32,11 @@
 
         Win {
             bindings = <
-&trans  &trans        &trans        &trans  &trans  &trans                  &trans  &trans  &trans  &trans  &trans  &trans
-&trans  &trans        &trans        &trans  &trans  &trans                  &trans  &trans  &trans  &trans  &trans  &trans
-&trans  &trans        &trans        &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans
-&trans  &trans        &trans        &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans
-&trans  &kp LEFT_WIN  &kp LEFT_ALT  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &to 0   &trans  &trans
+&trans  &trans  &trans        &trans        &trans  &trans                  &trans  &trans  &trans  &trans  &trans  &trans
+&trans  &trans  &trans        &trans        &trans  &trans                  &trans  &trans  &trans  &trans  &trans  &trans
+&trans  &trans  &trans        &trans        &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans
+&trans  &trans  &trans        &trans        &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans
+&trans  &trans  &kp LEFT_GUI  &kp LEFT_ALT  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &to 0   &trans  &trans
             >;
         };
 
