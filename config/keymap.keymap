@@ -32,11 +32,11 @@
 
         Win {
             bindings = <
-&trans  &trans  &trans        &trans        &trans  &trans                                   &trans  &trans  &trans  &trans  &trans  &trans
-&trans  &trans  &trans        &trans        &trans  &trans                                   &trans  &trans  &trans  &trans  &trans  &trans
-&trans  &trans  &trans        &trans        &trans  &trans  &trans                   &trans  &trans  &trans  &trans  &trans  &trans  &trans
-&trans  &trans  &trans        &trans        &trans  &trans  &trans                   &trans  &trans  &trans  &trans  &trans  &trans  &trans
-&trans  &trans  &kp LEFT_GUI  &kp LEFT_ALT  &trans  &trans  &mt LEFT_ALT LANGUAGE_2  &trans  &trans  &trans  &trans  &to 0   &trans  &trans
+&trans  &trans  &trans        &trans        &trans  &trans                                   &trans  &trans  &trans  &trans  &trans       &trans
+&trans  &trans  &trans        &trans        &trans  &trans                                   &trans  &trans  &trans  &trans  &trans       &trans
+&trans  &trans  &trans        &trans        &trans  &trans  &trans                   &trans  &trans  &trans  &trans  &trans  &trans       &trans
+&trans  &trans  &trans        &trans        &trans  &trans  &trans                   &trans  &trans  &trans  &trans  &trans  &trans       &trans
+&trans  &trans  &kp LEFT_GUI  &kp LEFT_ALT  &trans  &trans  &mt LEFT_ALT LANGUAGE_2  &trans  &trans  &trans  &trans  &mo 7   &lt 7 ENTER  &trans
             >;
         };
 
@@ -80,7 +80,17 @@
             >;
         };
 
-        Mouse_Scroll {
+        Mouse_Scroll_Mac {
+            bindings = <
+&trans  &trans  &trans  &trans  &trans  &trans                  &trans  &trans  &trans  &trans  &trans  &trans
+&trans  &trans  &trans  &trans  &trans  &trans                  &trans  &trans  &trans  &trans  &trans  &trans
+&trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans
+&trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans
+&trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans
+            >;
+        };
+
+        Mouse_Scroll_Win {
             bindings = <
 &trans  &trans  &trans  &trans  &trans  &trans                  &trans  &trans  &trans  &trans  &trans  &trans
 &trans  &trans  &trans  &trans  &trans  &trans                  &trans  &trans  &trans  &trans  &trans  &trans
