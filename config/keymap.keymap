@@ -52,11 +52,11 @@
 
         Function {
             bindings = <
-&trans  &trans                &trans   &trans        &trans            &trans                                  &trans            &trans    &trans        &trans     &trans         &trans
-&trans  &kp F1                &kp F2   &kp F3        &kp F4            &kp F5                                  &kp HOME          &kp HOME  &kp UP_ARROW  &kp END    &kp PAGE_UP    &trans
-&trans  &mt RIGHT_CONTROL F6  &kp F7   &kp F8        &kp F9            &kp F10           &trans        &trans  &kp BACKSPACE     &kp LEFT  &kp DOWN      &kp RIGHT  &kp PAGE_DOWN  &trans
-&trans  &mt LEFT_SHIFT F11    &kp F12  &bt BT_SEL 0  &bt BT_SEL 1      &bt BT_SEL 2      &bt BT_SEL 3  &trans  &kp SINGLE_QUOTE  &kp DQT   &kp GRAVE     &kp TILDE  &kp PIPE       &trans
-&trans  &trans                &trans   &trans        &kp LEFT_CONTROL  &kp LEFT_CONTROL  &bt BT_SEL 4  &trans  &trans            &trans    &trans        &tog 1     &trans         &trans
+&trans  &trans   &trans   &trans        &trans            &trans                                  &trans            &trans    &trans        &trans     &trans         &trans
+&trans  &kp F1   &kp F2   &kp F3        &kp F4            &kp F5                                  &kp HOME          &kp HOME  &kp UP_ARROW  &kp END    &kp PAGE_UP    &trans
+&trans  &kp F6   &kp F7   &kp F8        &kp F9            &kp F10           &trans        &trans  &kp BACKSPACE     &kp LEFT  &kp DOWN      &kp RIGHT  &kp PAGE_DOWN  &trans
+&trans  &kp F11  &kp F12  &bt BT_SEL 0  &bt BT_SEL 1      &bt BT_SEL 2      &bt BT_SEL 3  &trans  &kp SINGLE_QUOTE  &kp DQT   &kp GRAVE     &kp TILDE  &kp PIPE       &trans
+&trans  &trans   &trans   &trans        &kp LEFT_CONTROL  &kp LEFT_CONTROL  &bt BT_SEL 4  &trans  &trans            &trans    &trans        &tog 1     &trans         &trans
             >;
         };
 
@@ -135,6 +135,7 @@
         layers = <6>;
         input-processors =
             <&zip_xy_transform (INPUT_TRANSFORM_X_INVERT)>,
+            ,,
             /* Mac用のスクロール方向（Y軸反転なしで調整テスト） */,
             <&zip_xy_scaler 2 100>,
             <&zip_xy_to_scroll_mapper>,
@@ -145,6 +146,7 @@
         layers = <7>;
         input-processors =
             <&zip_xy_transform (INPUT_TRANSFORM_X_INVERT)>,
+            ,,
             /* Win用のスクロール方向 */,
             <&zip_xy_scaler 20 100>,
             <&zip_xy_to_scroll_mapper>,
