@@ -24,8 +24,8 @@
             bindings = <
 &none  &none                &none         &none         &none        &none                                                          &none        &none  &none      &none    &none                        &none
 &none  &kp Q                &kp W         &kp E         &kp R        &kp T                                                          &kp Y        &kp U  &kp I      &kp O    &kp P                        &none
-&none  &mt RIGHT_CONTROL A  &kp S         &kp D         &kp F        &kp G          &none                    &none                  &kp H        &kp J  &kp K      &kp L    &mt RIGHT_CONTROL SEMICOLON  &none
-&none  &mt LEFT_SHIFT Z     &kp X         &kp C         &kp V        &kp B          &kp TAB                  &kp ESCAPE             &kp N        &kp M  &kp COMMA  &kp DOT  &mt RIGHT_SHIFT SLASH        &none
+&none  &mt_idle RIGHT_CONTROL A  &kp S         &kp D         &kp F        &kp G          &none                    &none                  &kp H        &kp J  &kp K      &kp L    &mt_idle RIGHT_CONTROL SEMICOLON  &none
+&none  &mt_idle LEFT_SHIFT Z     &kp X         &kp C         &kp V        &kp B          &kp TAB                  &kp ESCAPE             &kp N        &kp M  &kp COMMA  &kp DOT  &mt_idle RIGHT_SHIFT SLASH        &none
 &none  &kp LCTRL            &kp LEFT_ALT  &kp LEFT_GUI  &lt 2 SPACE  &kp BACKSPACE  &mt LEFT_GUI LANGUAGE_2  &mt RSHIFT LANGUAGE_1  &lt 3 SPACE  &none  &none      &mo 6    &lt 6 ENTER                  &none
             >;
         };
@@ -44,8 +44,8 @@
             bindings = <
 &trans  &trans                &trans            &trans      &trans      &trans                           &trans          &trans         &trans            &trans             &trans         &trans
 &trans  &kp LS(NUMBER_1)      &kp LS(NUMBER_2)  &kp LS(N3)  &kp LS(N4)  &kp LS(N5)                       &kp LS(N6)      &kp LS(N7)     &kp LS(N8)        &kp LS(N9)         &kp LS(N0)     &trans
-&trans  &mt RIGHT_CONTROL N1  &kp N2            &kp N3      &kp N4      &kp N5      &trans       &trans  &kp LEFT_BRACE  &kp MINUS      &kp EQUAL         &kp RIGHT_BRACE    &kp COLON      &trans
-&trans  &mt LEFT_SHIFT N6     &kp N7            &kp N8      &kp N9      &kp N0      &kp LA(TAB)  &trans  &kp LS(MINUS)   &kp LS(EQUAL)  &kp LEFT_BRACKET  &kp RIGHT_BRACKET  &kp BACKSLASH  &trans
+&trans  &mt_idle RIGHT_CONTROL N1  &kp N2            &kp N3      &kp N4      &kp N5      &trans       &trans  &kp LEFT_BRACE  &kp MINUS      &kp EQUAL         &kp RIGHT_BRACE    &kp COLON      &trans
+&trans  &mt_idle LEFT_SHIFT N6     &kp N7            &kp N8      &kp N9      &kp N0      &kp LA(TAB)  &trans  &kp LS(MINUS)   &kp LS(EQUAL)  &kp LEFT_BRACKET  &kp RIGHT_BRACKET  &kp BACKSLASH  &trans
 &trans  &trans                &trans            &trans      &trans      &trans      &trans       &trans  &trans          &trans         &trans            &kp LS(LC(TAB))    &kp LC(TAB)    &trans
             >;
         };
@@ -54,8 +54,8 @@
             bindings = <
 &trans  &trans                &trans   &trans        &trans        &trans                               &trans            &trans    &trans        &trans     &trans         &trans
 &trans  &kp F1                &kp F2   &kp F3        &kp F4        &kp F5                               &kp HOME          &kp HOME  &kp UP_ARROW  &kp END    &kp PAGE_UP    &trans
-&trans  &mt RIGHT_CONTROL F6  &kp F7   &kp F8        &kp F9        &kp F10        &trans        &trans  &kp BACKSPACE     &kp LEFT  &kp DOWN      &kp RIGHT  &kp PAGE_DOWN  &trans
-&trans  &mt LEFT_SHIFT F11    &kp F12  &bt BT_SEL 0  &bt BT_SEL 1  &bt BT_SEL 2   &bt BT_SEL 3  &trans  &kp SINGLE_QUOTE  &kp DQT   &kp GRAVE     &kp TILDE  &kp PIPE       &trans
+&trans  &mt_idle RIGHT_CONTROL F6  &kp F7   &kp F8        &kp F9        &kp F10        &trans        &trans  &kp BACKSPACE     &kp LEFT  &kp DOWN      &kp RIGHT  &kp PAGE_DOWN  &trans
+&trans  &mt_idle LEFT_SHIFT F11    &kp F12  &bt BT_SEL 0  &bt BT_SEL 1  &bt BT_SEL 2   &bt BT_SEL 3  &trans  &kp SINGLE_QUOTE  &kp DQT   &kp GRAVE     &kp TILDE  &kp PIPE       &trans
 &trans  &trans                &trans   &trans        &kp LC(LEFT)  &kp LC(RIGHT)  &bt BT_SEL 4  &trans  &trans            &trans    &trans        &tog 1     &trans         &trans
             >;
         };
@@ -103,6 +103,18 @@
 };
 
 / {
+    behaviors {
+        mt_idle: mt_idle {
+            compatible = "zmk,behavior-hold-tap";
+            #binding-cells = <2>;
+            flavor = "balanced";
+            tapping-term-ms = <200>;
+            quick-tap-ms = <0>;
+            require-prior-idle-ms = <125>;
+            bindings = <&kp>, <&kp>;
+        };
+    };
+
     zip_temp_layer: zip_temp_layer {
         compatible = "zmk,input-processor-temp-layer";
         #input-processor-cells = <2>;
