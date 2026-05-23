@@ -76,7 +76,7 @@
 &trans  &trans  &trans  &trans  &trans  &trans                  &trans  &trans     &trans     &trans     &trans  &trans
 &trans  &mo 8   &mo 8   &mo 8   &mo 8   &trans  &trans  &trans  &trans  &mkp LCLK  &mkp MCLK  &mkp RCLK  &trans  &trans
 &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &mkp LCLK  &mkp MCLK  &mkp RCLK  &trans  &trans
-&tog 5  &tog 5  &tog 5  &tog 5  &tog 5  &tog 5  &tog 5  &tog 5  &tog 5  &trans     &trans     &trans     &trans  &trans
+&trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans     &trans     &trans     &trans  &trans
             >;
         };
 
@@ -148,6 +148,8 @@
             27 28 29 30 31
             // Local un-offset right half indices (just in case)
             39 40 41 42 43
+            // Bottom row thumb keys for manual auto-mouse exit (Indices 52 to 60)
+            52 53 54 55 56 57 58 59 60
         >;
     };
 };
