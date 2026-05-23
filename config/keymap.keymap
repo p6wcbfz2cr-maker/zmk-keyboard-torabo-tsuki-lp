@@ -76,7 +76,7 @@
 &trans  &trans  &trans  &trans  &trans  &trans                  &trans  &trans     &trans     &trans     &trans  &trans
 &trans  &mo 8   &mo 8   &mo 8   &mo 8   &trans  &trans  &trans  &trans  &mkp LCLK  &mkp MCLK  &mkp RCLK  &trans  &trans
 &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &mkp LCLK  &mkp MCLK  &mkp RCLK  &trans  &trans
-&trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans     &trans     &trans     &trans  &trans
+&exit_mouse_macro  &exit_mouse_macro  &exit_mouse_macro  &exit_mouse_macro  &exit_mouse_macro  &exit_mouse_macro  &exit_mouse_macro  &exit_mouse_macro  &exit_mouse_macro  &trans     &trans     &trans     &trans  &trans
             >;
         };
 
@@ -113,6 +113,14 @@
 };
 
 / {
+    macros {
+        exit_mouse_macro: exit_mouse_macro {
+            compatible = "zmk,behavior-macro";
+            #binding-cells = <0>;
+            bindings = <&macro_pause_for_release>, <&macro_tap &tog 5>;
+        };
+    };
+
     behaviors {
         mt_idle: mt_idle {
             compatible = "zmk,behavior-hold-tap";
@@ -148,8 +156,6 @@
             27 28 29 30 31
             // Local un-offset right half indices (just in case)
             39 40 41 42 43
-            // Bottom row thumb keys for manual auto-mouse exit (Indices 52 to 60)
-            52 53 54 55 56 57 58 59 60
         >;
     };
 };
