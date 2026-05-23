@@ -24,7 +24,7 @@
             bindings = <
 &none  &none                &none         &none         &none        &none                                                          &none        &none  &none      &none    &none                        &none
 &none  &kp Q                &kp W         &kp E         &kp R        &kp T                                                          &kp Y        &kp U  &kp I      &kp O    &kp P                        &none
-&none  &mt_idle RIGHT_CONTROL A  &kp S         &kp D         &kp F        &kp G          &none                    &none                  &kp H        &kp J  &kp K      &kp L    &mt_idle RIGHT_CONTROL SEMICOLON  &none
+&none  &mt_idle RIGHT_CONTROL A  &kp S         &kp D         &kp F        &kp G          &none                    &none                  &kp H        &kp J  &kp K      &kp L    &lt_idle 6 SEMICOLON  &none
 &none  &mt_idle LEFT_SHIFT Z     &kp X         &kp C         &kp V        &kp B          &kp TAB                  &kp ESCAPE             &kp N        &kp M  &kp COMMA  &kp DOT  &mt_idle RIGHT_SHIFT SLASH        &none
 &none  &kp LCTRL            &kp LEFT_ALT  &kp LEFT_GUI  &lt 2 SPACE  &kp BACKSPACE  &mt LEFT_GUI LANGUAGE_2  &mt RSHIFT LANGUAGE_1  &lt 3 SPACE  &none  &none      &mo 6    &lt 6 ENTER                  &none
             >;
@@ -34,7 +34,7 @@
             bindings = <
 &trans  &trans  &trans        &trans        &trans  &trans                                   &trans  &trans  &trans  &trans  &trans       &trans
 &trans  &trans  &trans        &trans        &trans  &trans                                   &trans  &trans  &trans  &trans  &trans       &trans
-&trans  &trans  &trans        &trans        &trans  &trans  &trans                   &trans  &trans  &trans  &trans  &trans  &trans       &trans
+&trans  &trans  &trans        &trans        &trans  &trans  &trans                   &trans  &trans  &trans  &trans  &trans  &lt_idle 7 SEMICOLON  &trans
 &trans  &trans  &trans        &trans        &trans  &trans  &trans                   &trans  &trans  &trans  &trans  &trans  &trans       &trans
 &trans  &trans  &kp LEFT_GUI  &kp LEFT_ALT  &trans  &trans  &mt LEFT_ALT LANGUAGE_2  &trans  &trans  &trans  &trans  &mo 7   &lt 7 ENTER  &trans
             >;
@@ -112,6 +112,16 @@
             quick-tap-ms = <0>;
             require-prior-idle-ms = <125>;
             bindings = <&kp>, <&kp>;
+        };
+
+        lt_idle: lt_idle {
+            compatible = "zmk,behavior-hold-tap";
+            #binding-cells = <2>;
+            flavor = "balanced";
+            tapping-term-ms = <200>;
+            quick-tap-ms = <0>;
+            require-prior-idle-ms = <125>;
+            bindings = <&mo>, <&kp>;
         };
     };
 
