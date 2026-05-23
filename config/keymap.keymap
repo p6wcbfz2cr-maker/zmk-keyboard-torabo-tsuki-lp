@@ -76,7 +76,7 @@
 &trans  &trans  &trans  &trans  &trans  &trans                  &trans  &trans     &trans     &trans     &trans  &trans
 &trans  &mo 8   &mo 8   &mo 8   &mo 8   &trans  &trans  &trans  &trans  &mkp LCLK  &mkp MCLK  &mkp RCLK  &trans  &trans
 &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &mkp LCLK  &mkp MCLK  &mkp RCLK  &trans  &trans
-&trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans     &trans     &trans     &trans  &trans
+&tog 5  &tog 5  &tog 5  &tog 5  &tog 5  &tog 5  &tog 5  &tog 5  &tog 5  &trans     &trans     &trans     &trans  &trans
             >;
         };
 
@@ -160,7 +160,7 @@
 &pointing_listener {
     input-processors =
         <&zip_xy_transform (INPUT_TRANSFORM_X_INVERT | INPUT_TRANSFORM_Y_INVERT)>,
-        <&zip_temp_layer 5 5000>,
+        <&zip_temp_layer 5 1200>,
         <&zip_xy_scaler 40 100>;
 
     fast_mouse {
