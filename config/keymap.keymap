@@ -46,7 +46,7 @@
 &trans  &kp LS(NUMBER_1)           &kp LS(NUMBER_2)  &kp LS(N3)  &kp LS(N4)  &kp LS(N5)                                &kp LS(N6)     &kp LS(N7)     &kp LS(N8)        &kp LS(N9)         &kp LS(N0)     &trans
 &trans  &mt_idle RIGHT_CONTROL N1  &kp N2            &kp N3      &kp N4      &kp N5      &trans       &trans           &kp EQUAL      &kp MINUS      &kp LEFT_BRACE    &kp RIGHT_BRACE    &kp COLON      &trans
 &trans  &mt_idle LEFT_SHIFT N6     &kp N7            &kp N8      &kp N9      &kp N0      &kp LA(TAB)  &trans           &kp LS(MINUS)  &kp LS(EQUAL)  &kp LEFT_BRACKET  &kp RIGHT_BRACKET  &kp BACKSLASH  &trans
-&trans  &trans                     &trans            &trans      &trans      &trans      &trans       &kp RA(RS(TAB))  &trans         &trans         &trans            &kp LS(LC(TAB))    &kp LC(TAB)    &trans
+&trans  &trans                     &trans            &trans      &trans      &trans      &trans       &kp RA(RS(TAB))  &kp RA(TAB)    &trans         &trans            &kp LS(LC(TAB))    &kp LC(TAB)    &trans
             >;
         };
 
