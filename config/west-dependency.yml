@@ -1,0 +1,46 @@
+manifest:
+  remotes:
+    - name: cormoran
+      url-base: https://github.com/cormoran
+    - name: sekigon-gonnoc
+      url-base: https://github.com/sekigon-gonnoc
+    - name: kot149
+      url-base: https://github.com/kot149
+  projects:
+    - name: zmk-west-commands
+      remote: cormoran
+      import: true
+      revision: v1.0.0
+    - name: zmk
+      remote: cormoran
+      revision: v0.3-branch+dya
+      import: app/west.yml
+    - name: zmk-component-bmp-boost
+      remote: sekigon-gonnoc
+      import: west.yml
+      revision: v0.2
+    - name: zmk-feature-status-led
+      remote: sekigon-gonnoc
+      revision: main
+    - name: zmk-driver-paw3222
+      remote: sekigon-gonnoc
+      revision: torabo-tsuki
+    - name: zmk-driver-iqs7211e
+      remote: sekigon-gonnoc
+    - name: zmk-feature-cdc-acm-bootloader-trigger
+      remote: sekigon-gonnoc
+      revision: v0.2
+    - name: zmk-feature-non-lipo-battery-management
+      remote: sekigon-gonnoc
+      revision: main
+    - name: zmk-scroll-snap
+      remote: kot149
+      revision: v1
+    - name: zmk-module-ble-management
+      remote: cormoran
+    - name: zmk-module-runtime-input-processor
+      remote: cormoran
+    - name: zmk-module-settings-rpc
+      remote: cormoran
+  self:
+    path: config

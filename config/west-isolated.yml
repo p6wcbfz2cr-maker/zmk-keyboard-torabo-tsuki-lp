@@ -1,0 +1,7 @@
+# Usage: cd repo && west init -l config --mf west-isolated.yml
+manifest:
+  self:
+    path: config
+    import:
+      file: west-dependency.yml
+      path-prefix: dependencies
