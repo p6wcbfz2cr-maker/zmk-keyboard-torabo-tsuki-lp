@@ -1,6 +1,75 @@
 name: Build ZMK firmware
-on: [push, pull_request, workflow_dispatch]
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
 
 jobs:
   build:
-    uses: zmkfirmware/zmk/.github/workflows/build-user-config.yml@v0.3
+    runs-on: ubuntu-latest
+    container:
+      image: zmkfirmware/zmk-build-arm:stable
+    name: Build
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Cache west modules
+        uses: actions/cache@v4
+        continue-on-error: true
+        env:
+          cache_name: cache-west-modules
+        with:
+          path: dependencies/
+          key: ${{ runner.os }}-build-${{ env.cache_name }}-${{ hashFiles('config/west.yml') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache_name }}-
+
+      - name: West Init
+        run: west init -l config
+
+      - name: West Update
+        run: west update
+
+      - name: West Zephyr export
+        run: west zephyr-export
+
+      - name: Build firmware
+        run: |
+          for target in $(python3 -c "
+          import yaml
+          with open('build.yaml') as f:
+              data = yaml.safe_load(f)
+          for item in data.get('include', []):
+              board = item['board']
+              shield = item['shield']
+              snippet = item.get('snippet', '')
+              name = item.get('artifact-name', f'{shield}')
+              print(f'{board}|{shield}|{snippet}|{name}')
+          "); do
+            IFS='|' read -r board shield snippet artifact <<< "$target"
+            echo "Building: $artifact (board=$board shield=$shield snippet=$snippet)"
+            snippet_arg=""
+            if [ -n "$snippet" ]; then
+              snippet_arg="-S \"$snippet\""
+            fi
+            eval west build -p -b "$board" -d "build/$artifact" \
+              -- -DSHIELD="$shield" \
+              ${snippet_arg:+$snippet_arg} \
+              -DZMK_CONFIG="$(pwd)/config" || echo "FAILED: $artifact"
+          done
+
+      - name: Collect artifacts
+        run: |
+          mkdir -p artifacts
+          find build -name 'zmk.uf2' | while read f; do
+            name=$(basename $(dirname $(dirname $f)))
+            cp "$f" "artifacts/${name}.uf2"
+          done
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: torabo-tsuki-dya
+          path: artifacts/

@@ -1,15 +1,15 @@
 manifest:
   remotes:
-    - name: zmkfirmware
-      url-base: https://github.com/zmkfirmware
+    - name: cormoran
+      url-base: https://github.com/cormoran
     - name: sekigon-gonnoc
       url-base: https://github.com/sekigon-gonnoc
     - name: kot149
       url-base: https://github.com/kot149
   projects:
     - name: zmk
-      remote: zmkfirmware
-      revision: v0.3
+      remote: cormoran
+      revision: v0.3-branch+dya
       import: app/west.yml
     - name: zmk-component-bmp-boost
       remote: sekigon-gonnoc
@@ -32,5 +32,11 @@ manifest:
     - name: zmk-scroll-snap
       remote: kot149
       revision: v1
+    - name: zmk-module-ble-management
+      remote: cormoran
+    - name: zmk-module-runtime-input-processor
+      remote: cormoran
+    - name: zmk-module-settings-rpc
+      remote: cormoran
   self:
     path: config
