@@ -27,6 +27,7 @@ manifest:
       revision: torabo-tsuki
     - name: zmk-driver-iqs7211e
       remote: sekigon-gonnoc
+      revision: master
     - name: zmk-feature-cdc-acm-bootloader-trigger
       remote: sekigon-gonnoc
       revision: v0.2
@@ -38,9 +39,12 @@ manifest:
       revision: v1
     - name: zmk-module-ble-management
       remote: cormoran
+      revision: main
     - name: zmk-module-runtime-input-processor
       remote: cormoran
+      revision: main
     - name: zmk-module-settings-rpc
       remote: cormoran
+      revision: main
   self:
     path: config
