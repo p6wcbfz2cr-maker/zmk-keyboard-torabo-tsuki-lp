@@ -119,18 +119,20 @@
             >;
         };
 
-        // Trackball gesture layer (Layer 9). Hold a key bound to `&mo 9`, then
-        // rotate the trackball. The last four bindings below are the UP / DOWN /
-        // LEFT / RIGHT swipe actions (positions 66-69) — edit them freely.
-        // The first 66 bindings stay &trans so normal keys keep working while held.
+        // Trackball gesture layer (Layer 9). Hold the trigger key (left thumb
+        // `&lt 9 BACKSPACE`), then rotate the trackball. The FIRST four bindings
+        // below (positions 0-3) are the UP / DOWN / LEFT / RIGHT swipe actions —
+        // edit them freely. They reuse the otherwise-unused top-row positions so
+        // raised events resolve reliably. All other bindings stay &trans so
+        // normal keys keep working while the trigger is held.
         Trackball_Gesture {
             bindings = <
+&kp UP  &kp DOWN  &kp LEFT  &kp RIGHT  &trans  &trans                  &trans  &trans  &trans  &trans  &trans  &trans
 &trans  &trans  &trans  &trans  &trans  &trans                  &trans  &trans  &trans  &trans  &trans  &trans
-&trans  &trans  &trans  &trans  &trans  &trans                  &trans  &trans  &trans  &trans  &trans  &trans
 &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans
 &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans
 &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans
-&kp UP  &kp DOWN  &kp LEFT  &kp RIGHT
+&trans  &trans  &trans  &trans
             >;
         };
     };

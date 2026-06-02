@@ -38,12 +38,16 @@ LOG_MODULE_REGISTER(trackball_gesture, CONFIG_ZMK_LOG_LEVEL);
 // distinct tap.
 #define GESTURE_RELEASE_DELAY_MS 15
 
-/* Virtual keymap positions. MUST match the order the RC() entries were appended
- * to size_l_transform in torabo_tsuki_lp.dtsi (position 66 is the first one). */
-#define GESTURE_POS_UP 66
-#define GESTURE_POS_DOWN 67
-#define GESTURE_POS_LEFT 68
-#define GESTURE_POS_RIGHT 69
+/* Keymap positions used as gesture targets. These are REAL, normally-unused
+ * positions (the top row, bound to &none on every layer) rather than synthetic
+ * ones, because raised events only resolve to bindings for positions that exist
+ * in the active physical layout's position map. On the Trackball_Gesture layer
+ * these positions are bound to the swipe actions; the action is whatever the
+ * keymap maps them to there. */
+#define GESTURE_POS_UP 0
+#define GESTURE_POS_DOWN 1
+#define GESTURE_POS_LEFT 2
+#define GESTURE_POS_RIGHT 3
 
 /* Layers on which trackball gestures are active. Bind a key to `&mo 9` (or a
  * hold-tap) to enter the gesture layer, then rotate the ball. Add more entries
