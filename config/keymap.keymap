@@ -221,14 +221,4 @@
             <&zip_xy_to_scroll_mapper>,
             <&zip_scroll_snap>;
     };
-
-    /* Trackball gesture layer: scale cursor movement to zero so the pointer
-     * does not drift while swiping. src/trackball_gesture.c still sees the raw
-     * X/Y events (input callbacks fire before listener processors), so gesture
-     * detection is unaffected. This override also skips zip_temp_layer, so the
-     * auto-mouse layer (5) is not toggled while gesturing. */
-    gesture_suppress {
-        layers = <9>;
-        input-processors = <&zip_xy_scaler 0 100>;
-    };
 };

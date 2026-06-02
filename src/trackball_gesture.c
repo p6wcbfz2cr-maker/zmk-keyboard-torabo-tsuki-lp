@@ -58,6 +58,7 @@ static const zmk_keymap_layer_id_t gesture_layers[] = {9};
 static int32_t accum_x;
 static int32_t accum_y;
 static int64_t cooldown_until;
+static uint32_t queued_press_pos;
 static uint32_t pending_release_pos;
 static bool release_pending;
 
@@ -78,6 +79,25 @@ static void gesture_release_work_cb(struct k_work *work) {
 
 static K_WORK_DELAYABLE_DEFINE(gesture_release_work, gesture_release_work_cb);
 
+// Raise the press from the system workqueue rather than inline in the input
+// thread, so position events are dispatched from a normal context (matching how
+// ZMK raises position events elsewhere).
+static void gesture_press_work_cb(struct k_work *work) {
+    if (release_pending) {
+        raise_position(pending_release_pos, false);
+        release_pending = false;
+    }
+
+    raise_position(queued_press_pos, true);
+    pending_release_pos = queued_press_pos;
+    release_pending = true;
+    k_work_schedule(&gesture_release_work, K_MSEC(GESTURE_RELEASE_DELAY_MS));
+
+    LOG_DBG("trackball gesture fired position=%u", queued_press_pos);
+}
+
+static K_WORK_DEFINE(gesture_press_work, gesture_press_work_cb);
+
 static bool any_gesture_layer_active(void) {
     for (size_t i = 0; i < ARRAY_SIZE(gesture_layers); i++) {
         if (zmk_keymap_layer_active(gesture_layers[i])) {
@@ -88,23 +108,12 @@ static bool any_gesture_layer_active(void) {
 }
 
 static void fire_gesture(uint32_t position) {
-    // Make sure any in-flight virtual press is released before the next one.
-    k_work_cancel_delayable(&gesture_release_work);
-    if (release_pending) {
-        raise_position(pending_release_pos, false);
-        release_pending = false;
-    }
-
-    raise_position(position, true);
-    pending_release_pos = position;
-    release_pending = true;
-    k_work_schedule(&gesture_release_work, K_MSEC(GESTURE_RELEASE_DELAY_MS));
+    queued_press_pos = position;
+    k_work_submit(&gesture_press_work);
 
     accum_x = 0;
     accum_y = 0;
     cooldown_until = k_uptime_get() + GESTURE_COOLDOWN_MS;
-
-    LOG_DBG("trackball gesture fired position=%u", position);
 }
 
 static void trackball_gesture_cb(struct input_event *evt) {
