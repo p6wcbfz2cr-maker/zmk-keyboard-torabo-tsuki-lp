@@ -175,6 +175,15 @@
             , <&key_physical_attrs 100 100 1350  425       0     0     0>
             , <&key_physical_attrs 100 100 1450  460       0     0     0>
             , <&key_physical_attrs 100 100 1550  460       0     0     0>
+            // Virtual keys for trackball gestures (keymap positions 66-69 =
+            // UP/DOWN/LEFT/RIGHT). Not physically present; driven only by
+            // src/trackball_gesture.c. They must exist here so the physical
+            // layout's position map covers indices 66-69 (otherwise raised
+            // position events are dropped). Off-board coordinates.
+            , <&key_physical_attrs 100 100    0  600       0     0     0>
+            , <&key_physical_attrs 100 100  100  600       0     0     0>
+            , <&key_physical_attrs 100 100  200  600       0     0     0>
+            , <&key_physical_attrs 100 100  300  600       0     0     0>
             ;
     };
 
