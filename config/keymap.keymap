@@ -26,7 +26,8 @@
 &none  &kp Q                     &kp W         &kp E         &kp R        &kp T                                              &kp Y        &kp U  &kp I      &kp O    &kp P                       &none
 &none  &mt_idle RIGHT_CONTROL A  &kp S         &kp D         &kp F        &kp G            &none             &none           &kp H        &kp J  &kp K      &kp L    &lt_idle 6 SEMICOLON        &none
 &none  &mt_idle LEFT_SHIFT Z     &kp X         &kp C         &kp V        &kp B            &kp LANGUAGE_2    &kp LANGUAGE_1  &kp N        &kp M  &kp COMMA  &kp DOT  &mt_idle RIGHT_SHIFT SLASH  &none
-&none  &kp LCTRL                 &kp LEFT_GUI  &kp LEFT_ALT  &lt 2 SPACE  &lt 4 BACKSPACE  &mt LEFT_GUI TAB  &mt RSHIFT ESC  &lt 3 SPACE  &none  &none      &mo 6    &lt 6 ENTER                 &none
+&none  &kp LCTRL                 &kp LEFT_GUI  &kp LEFT_ALT  &lt 2 SPACE  &lt 9 BACKSPACE  &mt LEFT_GUI TAB  &mt RSHIFT ESC  &lt 3 SPACE  &none  &none      &mo 6    &lt 6 ENTER                 &none
+&none  &none  &none  &none
             >;
         };
 
@@ -37,6 +38,7 @@
 &trans  &trans  &trans        &trans        &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &lt_idle 7 SEMICOLON  &trans
 &trans  &trans  &trans        &trans        &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans                &trans
 &trans  &trans  &kp LEFT_GUI  &kp LEFT_ALT  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &mo 7   &lt 7 ENTER           &trans
+&trans  &trans  &trans  &trans
             >;
         };
 
@@ -47,6 +49,7 @@
 &trans  &mt_idle RIGHT_CONTROL N1  &kp N2            &kp N3      &kp N4      &kp N5      &trans       &trans           &kp EQUAL      &kp MINUS      &kp LEFT_BRACE    &kp RIGHT_BRACE    &kp COLON      &trans
 &trans  &mt_idle LEFT_SHIFT N6     &kp N7            &kp N8      &kp N9      &kp N0      &kp LA(TAB)  &trans           &kp LS(MINUS)  &kp LS(EQUAL)  &kp LEFT_BRACKET  &kp RIGHT_BRACKET  &kp BACKSLASH  &trans
 &trans  &trans                     &trans            &trans      &trans      &trans      &trans       &kp RA(RS(TAB))  &kp RA(TAB)    &trans         &trans            &kp LS(LC(TAB))    &kp LC(TAB)    &trans
+&trans  &trans  &trans  &trans
             >;
         };
 
@@ -57,6 +60,7 @@
 &trans  &mt_idle RIGHT_CONTROL F6  &kp F7   &kp F8        &kp F9        &kp F10        &trans        &trans  &kp BACKSPACE     &kp LEFT  &kp DOWN      &kp RIGHT  &kp PAGE_DOWN  &trans
 &trans  &mt_idle LEFT_SHIFT F11    &kp F12  &bt BT_SEL 0  &bt BT_SEL 1  &bt BT_SEL 2   &bt BT_SEL 3  &trans  &kp SINGLE_QUOTE  &kp DQT   &kp GRAVE     &kp TILDE  &kp PIPE       &trans
 &trans  &trans                     &trans   &trans        &kp LC(LEFT)  &kp LC(RIGHT)  &bt BT_SEL 4  &trans  &trans            &trans    &trans        &tog 1     &trans         &trans
+&trans  &trans  &trans  &trans
             >;
         };
 
@@ -67,6 +71,7 @@
 &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans
 &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans
 &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans
+&trans  &trans  &trans  &trans
             >;
         };
 
@@ -77,6 +82,7 @@
 &trans             &mo 8              &mo 8              &mo 8              &mo 8              &trans             &trans             &trans             &trans             &mkp LCLK  &mkp MCLK  &mkp RCLK  &trans  &trans
 &trans             &trans             &trans             &trans             &trans             &trans             &trans             &trans             &trans             &mkp LCLK  &mkp MCLK  &mkp RCLK  &trans  &trans
 &exit_mouse_macro  &exit_mouse_macro  &exit_mouse_macro  &exit_mouse_macro  &exit_mouse_macro  &exit_mouse_macro  &exit_mouse_macro  &exit_mouse_macro  &exit_mouse_macro  &trans     &trans     &trans     &trans  &trans
+&trans  &trans  &trans  &trans
             >;
         };
 
@@ -87,6 +93,7 @@
 &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans
 &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans
 &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans
+&trans  &trans  &trans  &trans
             >;
         };
 
@@ -97,6 +104,7 @@
 &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans
 &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans
 &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans
+&trans  &trans  &trans  &trans
             >;
         };
 
@@ -107,6 +115,22 @@
 &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans
 &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans
 &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans
+&trans  &trans  &trans  &trans
+            >;
+        };
+
+        // Trackball gesture layer (Layer 9). Hold a key bound to `&mo 9`, then
+        // rotate the trackball. The last four bindings below are the UP / DOWN /
+        // LEFT / RIGHT swipe actions (positions 66-69) — edit them freely.
+        // The first 66 bindings stay &trans so normal keys keep working while held.
+        Trackball_Gesture {
+            bindings = <
+&trans  &trans  &trans  &trans  &trans  &trans                  &trans  &trans  &trans  &trans  &trans  &trans
+&trans  &trans  &trans  &trans  &trans  &trans                  &trans  &trans  &trans  &trans  &trans  &trans
+&trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans
+&trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans
+&trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans
+&kp UP  &kp DOWN  &kp LEFT  &kp RIGHT
             >;
         };
     };
@@ -194,5 +218,15 @@
             <&zip_xy_scaler 20 100>,
             <&zip_xy_to_scroll_mapper>,
             <&zip_scroll_snap>;
+    };
+
+    /* Trackball gesture layer: scale cursor movement to zero so the pointer
+     * does not drift while swiping. src/trackball_gesture.c still sees the raw
+     * X/Y events (input callbacks fire before listener processors), so gesture
+     * detection is unaffected. This override also skips zip_temp_layer, so the
+     * auto-mouse layer (5) is not toggled while gesturing. */
+    gesture_suppress {
+        layers = <9>;
+        input-processors = <&zip_xy_scaler 0 100>;
     };
 };
