@@ -65,24 +65,24 @@ src/                        ← カスタムCコード（board.c=分割電源管
 
 「あるキーを押しながらトラックボールを上下左右に振ると、方向に応じたアクションを発火する」機能。`src/trackball_gesture.c` が実装。
 
-- **仕組み**: `src/trackball_gesture.c` が**カスタム入力プロセッサ `zip_gesture`**（compatible `zmk,input-processor-gesture`、binding は `dts/bindings/input_processors/`、ノードは shield dtsi）として実装され、`&pointing_listener` の **input-processors 先頭**に置かれている。先頭ゆえ**生のX/Y変位**を読め、ジェスチャーレイヤー有効時だけ蓄積→閾値超過で方向確定→**キーポジションを press/release**（raise はシステムワークキューに退避）。さらに同レイヤー中は `ZMK_INPUT_PROC_STOP` を返して**カーソル移動を抑制**する（値は変えずにイベントを止めるので検出と両立）。アクション割り当ては通常のキーマップ側で行い、C の再コンパイル不要。
+- **仕組み**: `src/trackball_gesture.c` が**カスタム入力プロセッサ `zip_gesture`**（compatible `zmk,input-processor-gesture`、binding は `dts/bindings/input_processors/`、ノードは shield dtsi）として実装される。`&pointing_listener` の **Layer 9 override の唯一のプロセッサ**として配置されており（`gesture { layers = <9>; input-processors = <&zip_gesture>; }`）、**「プロセッサが呼ばれた＝Layer 9 が有効」**なのでレイヤー問い合わせ不要。唯一のプロセッサゆえ**生のX/Y変位**を読め、蓄積→閾値超過で方向確定→**キーポジションを press/release**（raise はシステムワークキューに退避）。さらに `ZMK_INPUT_PROC_STOP` を返して**カーソル移動を抑制**（値は変えずにイベントを止め、base チェーンもスキップするので auto-mouse も発火しない）。アクション割り当ては通常のキーマップ側で行い、C の再コンパイル不要。
 - **発火先ポジション（重要）**: **実在する未使用ポジション 0〜3**（トップ行＝全レイヤー `&none`／物理的に未実装）を UP/DOWN/LEFT/RIGHT に使う。`Trackball_Gesture`（Layer 9）の**先頭4バインド**がこれにあたる。
   - 当初は末尾に**仮想ポジション 66–69** を新設する設計だったが、ZMK は raise したポジションを**物理レイアウトの position map 経由**で解決するため、複数物理レイアウト（S/M/L）構成では新設ポジションがマップに乗らず**イベントが破棄**され発火しなかった。そこで「すでに正常にルーティングされる実在ポジション」に切り替えた。`src/trackball_gesture.c` の `GESTURE_POS_*` がこの番号（0〜3）を持つ。
   - 当初の名残（`size_l_transform`／`physical_layout_l`／全レイヤーを 66→70 に拡張した分）は**現在は未使用**。害はないが、整理するなら 66 に戻してよい。
 - **「どのキーを押しながらか」**: 既存の `&mo`/`&lt`（モーメンタリ／レイヤータップ）パターンで表現。キーをホールド→ジェスチャーレイヤー有効化→そのレイヤーの仮想ポジションのバインドが選ばれる。レイヤーを分ければ「キー種別ごとに別アクション」になる。
 - **現在のトリガーキー**: 左親指の `&lt 9 BACKSPACE`（Macレイヤー、Winもフォールスルーで継承）。タップ=BACKSPACE、ホールド=ジェスチャー有効。トラックボールは右親指で操作する想定のため、反対側（左親指）をトリガーにしている。元の `&lt 4 BACKSPACE` の Layer 4 は中身が全`&trans`で未使用だったため、ホールド先を 9 に振り替えても失う機能はない（Layer 4 自体は番号維持のため残置・孤立）。
 - **1モーション1アクション**: 連続した1回のボール移動につき1回だけ発火し、ボールが `GESTURE_IDLE_REARM_MS` の間アイドルになると再武装する（転がし続けても連射しない）。
-- **カーソル抑制**: ジェスチャーレイヤー中は `zip_gesture` が `ZMK_INPUT_PROC_STOP` を返し、後続プロセッサ（transform/temp_layer/scaler）を止めてカーソルを動かさない。値をゼロ化しないため検出は壊れない。
-  - かつて `gesture_suppress`（`zip_xy_scaler 0`）で抑制を試みたが、入力コールバックは同一イベント実体を順に処理し、リスナーが検出より先に走って scaler 0 が検出側の読み取り値もゼロ化していたため失敗した。入力プロセッサ化（＝リスナーの先頭で処理）でこれを解消した。
-- **方向の注意**: `zip_gesture` は `zip_xy_transform`（X/Y反転）より前で生値を読むため、カーソルの向きと検出の向きが反転している。逆に感じる場合は `src/trackball_gesture.c` の `GESTURE_POS_*` の対応を入れ替える。
-- **モジュール越しのリンク制約（重要）**: このリポジトリは ZMK の外部モジュール（`ZMK_EXTRA_MODULES`）として読み込まれる。`zmk_keymap_layer_active()` など ZMK 本体内の一部関数は**外部モジュールからリンクできず**（`undefined reference`）、一方でイベント機構（`ZMK_LISTENER`/`ZMK_SUBSCRIPTION`/`raise_*`）は `board.c` 同様リンクできる。そのため `zip_gesture` はレイヤー判定を **`zmk_layer_state_changed` イベントの購読**で自前追跡している（直接 `zmk_keymap_layer_active` を呼ばない）。新規 C コードで ZMK 本体の関数を呼ぶ際はこの制約に注意。
+- **カーソル抑制**: `zip_gesture` が `ZMK_INPUT_PROC_STOP` を返し、後続プロセッサ（transform/temp_layer/scaler）を止めてカーソルを動かさない。値をゼロ化しないため検出は壊れない。
+  - かつて `gesture_suppress`（`zip_xy_scaler 0`）で抑制を試みたが、scaler 0 が検出側の読み取り値もゼロ化して失敗。プロセッサ化（リスナー内で raw を読み STOP で抑制）で解消した。
+- **方向の注意**: `zip_gesture` は `zip_xy_transform`（X/Y反転）を通らない生値を読むため、カーソルの向きと検出の向きが反転している。逆に感じる場合は `src/trackball_gesture.c` の `GESTURE_POS_*` の対応を入れ替える。
+- **モジュール越しのリンク制約（重要）**: このリポジトリは ZMK の外部モジュール（`ZMK_EXTRA_MODULES`）として読み込まれる。実測では **`zmk_keymap_layer_active()` や `keymap.c` 由来のイベント（例 `zmk_layer_state_changed`）は外部モジュールからリンクできない**（`undefined reference`）。一方 `position_state_changed`/`activity_state_changed` 系や `raise_*`、入力プロセッサ API はリンクできる（`board.c` も同系統を使用）。そのため `zip_gesture` は**レイヤー問い合わせを一切せず**、「Layer 9 override の唯一のプロセッサとして配置されている＝呼ばれた時点で Layer 9」という構造でこれを回避している。新規 C コードで ZMK 本体関数を呼ぶ際はこの制約に注意。
 - **モジュールの dts_root**: カスタム binding を認識させるため `zephyr/module.yml` に `dts_root: .` が必要（`dts/bindings/` を検索対象に追加）。
-- **調整パラメータ**（`src/trackball_gesture.c` 冒頭の `#define`）: `GESTURE_THRESHOLD`（発火に必要な変位量／生値ベース）, `GESTURE_IDLE_REARM_MS`（このms間アイドルで再武装）, `GESTURE_RELEASE_DELAY_MS`（press→release 間隔）, `gesture_layers[]`（ジェスチャー有効レイヤーの配列）。
+- **調整パラメータ**（`src/trackball_gesture.c` 冒頭の `#define`）: `GESTURE_THRESHOLD`（発火に必要な変位量／生値ベース）, `GESTURE_IDLE_REARM_MS`（このms間アイドルで再武装）, `GESTURE_RELEASE_DELAY_MS`（press→release 間隔）。
 
 **設定手順（新しいジェスチャーを足す場合）**:
 1. トリガーキーを割り当てる。現状は左親指 `&lt 9 BACKSPACE`。別のキーにしたい場合は `&mo 9`（押している間だけ）か `&lt 9 <tap-key>`（タップで通常キー／ホールドでジェスチャー）を使う。
 2. `Trackball_Gesture` レイヤー（Layer 9）の**先頭4バインド**（position 0–3＝UP/DOWN/LEFT/RIGHT）を好みのアクションに書き換える。
-3. キーごとに別アクションにしたい場合は、新レイヤーを追加し、`gesture_layers[]` にそのレイヤー番号を足して再ビルド。
+3. キーごとに別アクションにしたい場合は、新レイヤー（例 Layer 10）を追加し、そのレイヤーへ入るトリガーキー（`&mo 10` 等）を割り当て、`&pointing_listener` に override（`gesture10 { layers = <10>; input-processors = <&zip_gesture>; };`）を足す。`zip_gesture` はどのレイヤーかを問わないので C の変更は不要。
 
 ### トラックボール入力処理（`pointing_listener`）
 

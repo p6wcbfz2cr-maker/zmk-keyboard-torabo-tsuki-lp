@@ -193,7 +193,6 @@
 
 &pointing_listener {
     input-processors =
-        <&zip_gesture>,
         <&zip_xy_transform (INPUT_TRANSFORM_X_INVERT | INPUT_TRANSFORM_Y_INVERT)>,
         <&zip_temp_layer 5 1200>,
         <&zip_xy_scaler 40 100>;
@@ -221,5 +220,14 @@
             <&zip_xy_scaler 20 100>,
             <&zip_xy_to_scroll_mapper>,
             <&zip_scroll_snap>;
+    };
+
+    /* Gesture layer (9): zip_gesture is the ONLY processor, so it runs only
+     * while layer 9 is active (= no layer query needed in C). It detects swipes
+     * and returns STOP, which both suppresses the cursor and skips the base
+     * chain (so zip_temp_layer / auto-mouse does not trigger either). */
+    gesture {
+        layers = <9>;
+        input-processors = <&zip_gesture>;
     };
 };
