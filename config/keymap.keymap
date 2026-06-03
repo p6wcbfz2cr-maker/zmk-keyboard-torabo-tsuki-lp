@@ -192,21 +192,19 @@
 };
 
 &pointing_listener {
-    /* Cursor direction. Was (X_INVERT | Y_INVERT) which moved the cursor
-     * opposite to the ball; 0 (no inversion) makes the cursor follow the ball.
-     * To re-flip an axis, add INPUT_TRANSFORM_X_INVERT and/or
-     * INPUT_TRANSFORM_Y_INVERT here AND in fast_mouse AND in the gesture
-     * override below (keep all three identical so the gesture arrows keep
-     * matching the cursor). */
+    /* Cursor direction. (X_INVERT | Y_INVERT) is the correct cursor direction.
+     * The gesture override below uses the SAME flags so the swipe arrows match
+     * the cursor. To change direction, edit these flags in all three places
+     * (base, fast_mouse, gesture override) identically. */
     input-processors =
-        <&zip_xy_transform 0>,
+        <&zip_xy_transform (INPUT_TRANSFORM_X_INVERT | INPUT_TRANSFORM_Y_INVERT)>,
         <&zip_temp_layer 5 1200>,
         <&zip_xy_scaler 40 100>;
 
     fast_mouse {
         layers = <8>;
         input-processors =
-            <&zip_xy_transform 0>,
+            <&zip_xy_transform (INPUT_TRANSFORM_X_INVERT | INPUT_TRANSFORM_Y_INVERT)>,
             <&zip_xy_scaler 100 100>;
     };
 
@@ -236,7 +234,7 @@
     gesture {
         layers = <9>;
         input-processors =
-            <&zip_xy_transform 0>,
+            <&zip_xy_transform (INPUT_TRANSFORM_X_INVERT | INPUT_TRANSFORM_Y_INVERT)>,
             <&zip_gesture>;
     };
 };

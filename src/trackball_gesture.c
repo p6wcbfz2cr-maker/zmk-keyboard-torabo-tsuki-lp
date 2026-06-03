@@ -150,8 +150,11 @@ static int gesture_handle_event(const struct device *dev, struct input_event *ev
         }
     }
 
-    // Suppress the pointer while gesturing. STOP halts the rest of the chain
-    // (no cursor movement) without modifying the value.
+    // Suppress the pointer while gesturing: zero the movement (belt-and-braces,
+    // matching the previously-proven scaler-0 behaviour) and STOP the chain so
+    // nothing downstream emits cursor movement. Detection above already read the
+    // value, so zeroing here does not affect gesture recognition.
+    event->value = 0;
     return ZMK_INPUT_PROC_STOP;
 }
 
