@@ -53,7 +53,7 @@ src/                        ← カスタムCコード（board.c=分割電源管
 | Mouse_Scroll_Mac | 6 | Macスクロール（`;` 長押しで遷移） |
 | Mouse_Scroll_Win | 7 | Winスクロール（`;` 長押しで遷移） |
 | Mouse_Fast | 8 | 高速カーソル（mouseレイヤー中に `a`/`s`/`d`/`f` 長押し） |
-| Trackball_Gesture | 9 | トラックボールジェスチャー（左親指 BACKSPACE = `&lt 9 BACKSPACE` をホールド中にボールを上下左右へ振る） |
+| Trackball_Gesture | 9 | トラックボールジェスチャー（左親指右 = `&lt 9 TAB` をホールド中にボールを上下左右へ振る） |
 
 ### 主要なカスタムビヘイビア
 
@@ -70,18 +70,18 @@ src/                        ← カスタムCコード（board.c=分割電源管
   - 当初は末尾に**仮想ポジション 66–69** を新設する設計だったが、ZMK は raise したポジションを**物理レイアウトの position map 経由**で解決するため、複数物理レイアウト（S/M/L）構成では新設ポジションがマップに乗らず**イベントが破棄**され発火しなかった。そこで「すでに正常にルーティングされる実在ポジション」に切り替えた。`src/trackball_gesture.c` の `GESTURE_POS_*` がこの番号（0〜3）を持つ。
   - 当初の名残（`size_l_transform`／`physical_layout_l`／全レイヤーを 66→70 に拡張した分）は**現在は未使用**。害はないが、整理するなら 66 に戻してよい。
 - **「どのキーを押しながらか」**: 既存の `&mo`/`&lt`（モーメンタリ／レイヤータップ）パターンで表現。キーをホールド→ジェスチャーレイヤー有効化→そのレイヤーの仮想ポジションのバインドが選ばれる。レイヤーを分ければ「キー種別ごとに別アクション」になる。
-- **現在のトリガーキー**: 左親指の `&lt 9 BACKSPACE`（Macレイヤー、Winもフォールスルーで継承）。タップ=BACKSPACE、ホールド=ジェスチャー有効。トラックボールは右親指で操作する想定のため、反対側（左親指）をトリガーにしている。元の `&lt 4 BACKSPACE` の Layer 4 は中身が全`&trans`で未使用だったため、ホールド先を 9 に振り替えても失う機能はない（Layer 4 自体は番号維持のため残置・孤立）。
+- **現在のトリガーキー**: 左親指右の `&lt 9 TAB`（Macレイヤー、Winもフォールスルーで継承）。タップ=Tab、ホールド=ジェスチャー有効。トラックボールは右親指で操作する想定のため、反対側（左親指）をトリガーにしている。元はこのキーが `&mt LEFT_GUI TAB`（ホールド=左GUI）だったが、ホールドをレイヤー9に振り替えた（左GUIのホールド機能は無くなった／Tabタップは維持）。隣の `&lt 4 BACKSPACE`（タップ=BACKSPACE）は据え置き。
 - **1モーション1アクション**: 連続した1回のボール移動につき1回だけ発火し、ボールが `GESTURE_IDLE_REARM_MS` の間アイドルになると再武装する（転がし続けても連射しない）。
 - **カーソル抑制**: `zip_gesture` が `ZMK_INPUT_PROC_STOP` を返し、後続プロセッサ（transform/temp_layer/scaler）を止めてカーソルを動かさない。値をゼロ化しないため検出は壊れない。
   - かつて `gesture_suppress`（`zip_xy_scaler 0`）で抑制を試みたが、scaler 0 が検出側の読み取り値もゼロ化して失敗。プロセッサ化（リスナー内で raw を読み STOP で抑制）で解消した。
 - **方向の調整（カーソル＝矢印を一致）**: `zip_gesture` の override にはカーソル base と**同じ `zip_xy_transform` フラグ**を前段に置いてあり（現状 `INPUT_TRANSFORM_X_INVERT | INPUT_TRANSFORM_Y_INVERT`）、矢印の向きは**常にカーソルの向きと一致**する。C 側の方向マッピングは画面座標規約（post-transform +X=右=RIGHT、+Y=下=DOWN）で固定なので、**向きの調整は `src/trackball_gesture.c` ではなく `&pointing_listener` の3か所の `zip_xy_transform` フラグ**（base / `fast_mouse` / `gesture` override）を**同一に**変更して行う。当初「矢印が逆」だったのは、ジェスチャー検出が transform を通らない生値を読んでいたため。override に同じ transform を追加して解消した（カーソルの `INVERT|INVERT` はそのまま正しい向き）。scroll レイヤー（6/7）の transform は別管理。
-- **ジェスチャー中のカーソル抑制**: `zip_gesture` は `event->value = 0` にしたうえで `ZMK_INPUT_PROC_STOP` を返す（値ゼロ化＋チェーン停止の二重）。ただし抑制が効くのは**ジェスチャーレイヤーが実際に有効な間だけ**。トリガーが `&lt 9 BACKSPACE`（ホールドタップ）の場合、押してから hold 判定が確定する（tapping-term≈200ms）まではレイヤー9が未有効なので、その間にボールを動かすとカーソルが少し動く。押して一拍おいてから回すと完全に止まる。
+- **ジェスチャー中のカーソル抑制**: `zip_gesture` は `event->value = 0` にしたうえで `ZMK_INPUT_PROC_STOP` を返す（値ゼロ化＋チェーン停止の二重）。ただし抑制が効くのは**ジェスチャーレイヤーが実際に有効な間だけ**。トリガーが `&lt 9 TAB`（ホールドタップ）の場合、押してから hold 判定が確定する（tapping-term≈200ms）まではレイヤー9が未有効なので、その間にボールを動かすとカーソルが少し動く。押して一拍おいてから回すと完全に止まる。
 - **モジュール越しのリンク制約（重要）**: このリポジトリは ZMK の外部モジュール（`ZMK_EXTRA_MODULES`）として読み込まれる。実測では **`zmk_keymap_layer_active()` や `keymap.c` 由来のイベント（例 `zmk_layer_state_changed`）は外部モジュールからリンクできない**（`undefined reference`）。一方 `position_state_changed`/`activity_state_changed` 系や `raise_*`、入力プロセッサ API はリンクできる（`board.c` も同系統を使用）。そのため `zip_gesture` は**レイヤー問い合わせを一切せず**、「Layer 9 override の唯一のプロセッサとして配置されている＝呼ばれた時点で Layer 9」という構造でこれを回避している。新規 C コードで ZMK 本体関数を呼ぶ際はこの制約に注意。
 - **モジュールの dts_root**: カスタム binding を認識させるため `zephyr/module.yml` に `dts_root: .` が必要（`dts/bindings/` を検索対象に追加）。
 - **調整パラメータ**（`src/trackball_gesture.c` 冒頭の `#define`）: `GESTURE_THRESHOLD`（発火に必要な変位量／生値ベース）, `GESTURE_IDLE_REARM_MS`（このms間アイドルで再武装）, `GESTURE_RELEASE_DELAY_MS`（press→release 間隔）。
 
 **設定手順（新しいジェスチャーを足す場合）**:
-1. トリガーキーを割り当てる。現状は左親指 `&lt 9 BACKSPACE`。別のキーにしたい場合は `&mo 9`（押している間だけ）か `&lt 9 <tap-key>`（タップで通常キー／ホールドでジェスチャー）を使う。
+1. トリガーキーを割り当てる。現状は左親指右 `&lt 9 TAB`。別のキーにしたい場合は `&mo 9`（押している間だけ）か `&lt 9 <tap-key>`（タップで通常キー／ホールドでジェスチャー）を使う。
 2. `Trackball_Gesture` レイヤー（Layer 9）の**先頭4バインド**（position 0–3＝UP/DOWN/LEFT/RIGHT）を好みのアクションに書き換える。
 3. キーごとに別アクションにしたい場合は、新レイヤー（例 Layer 10）を追加し、そのレイヤーへ入るトリガーキー（`&mo 10` 等）を割り当て、`&pointing_listener` に override（`gesture10 { layers = <10>; input-processors = <&zip_gesture>; };`）を足す。`zip_gesture` はどのレイヤーかを問わないので C の変更は不要。
 
