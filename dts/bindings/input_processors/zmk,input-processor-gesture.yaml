@@ -1,0 +1,8 @@
+description: |
+  Trackball direction-gesture input processor. Detects up/down/left/right swipes
+  while a gesture layer is active and suppresses the pointer during gestures.
+  Implemented in src/trackball_gesture.c. Takes no parameters.
+
+compatible: "zmk,input-processor-gesture"
+
+include: ip_zero_param.yaml

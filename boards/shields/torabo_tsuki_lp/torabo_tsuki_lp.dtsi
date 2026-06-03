@@ -97,6 +97,14 @@
         status = "disabled";
     };
 
+    // Trackball direction-gesture processor (see src/trackball_gesture.c).
+    // Referenced first in &pointing_listener so it reads raw movement and can
+    // suppress the pointer while gesturing.
+    zip_gesture: zip_gesture {
+        compatible = "zmk,input-processor-gesture";
+        #input-processor-cells = <0>;
+    };
+
     vbatt: vbatt {
         // Disable default battery monitoring
         status = "disabled";

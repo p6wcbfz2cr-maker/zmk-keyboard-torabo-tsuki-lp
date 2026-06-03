@@ -1,26 +1,30 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 //
-// Trackball direction gestures.
+// Trackball direction gestures, implemented as a ZMK input processor.
 //
-// While one of the configured "gesture layers" is active (typically entered by
-// holding a key bound to `&mo <layer>`), rotating the trackball far enough in a
-// direction fires a virtual key position (UP/DOWN/LEFT/RIGHT). The action for
-// each direction is whatever that position is bound to on the active layer in
-// config/keymap.keymap, so "key + direction -> action" is fully configurable
-// there without touching this file.
+// This processor is placed FIRST in &pointing_listener's input-processors so it
+// sees raw pointer movement before any transform/scaler. While a configured
+// "gesture layer" is active (entered by holding the trigger key, e.g.
+// `&lt 9 BACKSPACE`), it:
+//   1. accumulates raw X/Y and, once a direction crosses the threshold, fires a
+//      keymap position (UP/DOWN/LEFT/RIGHT) exactly once per continuous motion;
+//   2. returns ZMK_INPUT_PROC_STOP so the pointer does NOT move while gesturing.
+// Because it stops the event WITHOUT zeroing the value, gesture detection and
+// cursor suppression no longer conflict (the earlier zip_xy_scaler-0 approach
+// zeroed the value other consumers read, which broke detection).
 //
-// The virtual positions are appended to size_l_transform in
-// boards/shields/torabo_tsuki_lp/torabo_tsuki_lp.dtsi; keep GESTURE_POS_*
-// in sync with that order.
+// The fired positions reuse real, otherwise-unused keymap positions (top row,
+// bound to the swipe actions only on the Trackball_Gesture layer), so the
+// action is fully configurable in config/keymap.keymap.
 
-#include <zephyr/sys/util_macro.h>
-
-#if IS_ENABLED(CONFIG_ZMK_SPLIT_ROLE_CENTRAL)
+#define DT_DRV_COMPAT zmk_input_processor_gesture
 
 #include <zephyr/kernel.h>
+#include <zephyr/device.h>
 #include <zephyr/input/input.h>
 #include <zephyr/logging/log.h>
 
+#include <drivers/input_processor.h>
 #include <zmk/keymap.h>
 #include <zmk/event_manager.h>
 #include <zmk/events/position_state_changed.h>
@@ -28,32 +32,24 @@
 LOG_MODULE_REGISTER(trackball_gesture, CONFIG_ZMK_LOG_LEVEL);
 
 /* ===== Tunable parameters ===== */
-// Accumulated raw movement (sensor counts) on the dominant axis before a
-// direction fires. Larger = the ball must travel further to trigger a gesture.
+// Accumulated raw movement on the dominant axis before a direction fires.
 #define GESTURE_THRESHOLD 80
 // The ball must stay still (no movement events) for at least this long before
-// another gesture can fire. This makes one continuous motion produce exactly
-// one action; stop and move again for the next one.
+// another gesture can fire. One continuous motion => one action.
 #define GESTURE_IDLE_REARM_MS 300
-// Delay between the virtual key press and its release, so the host registers a
-// distinct tap.
+// Delay between the virtual key press and its release.
 #define GESTURE_RELEASE_DELAY_MS 15
 
 /* Keymap positions used as gesture targets. These are REAL, normally-unused
- * positions (the top row, bound to &none on every layer) rather than synthetic
- * ones, because raised events only resolve to bindings for positions that exist
- * in the active physical layout's position map. On the Trackball_Gesture layer
- * these positions are bound to the swipe actions; the action is whatever the
- * keymap maps them to there. */
+ * positions (top row, &none on every layer); on the Trackball_Gesture layer
+ * they are bound to the swipe actions. */
 #define GESTURE_POS_UP 0
 #define GESTURE_POS_DOWN 1
 #define GESTURE_POS_LEFT 2
 #define GESTURE_POS_RIGHT 3
 
-/* Layers on which trackball gestures are active. Bind a key to `&mo 9` (or a
- * hold-tap) to enter the gesture layer, then rotate the ball. Add more entries
- * to enable gestures on additional layers (each layer can map the four
- * positions to different actions). */
+/* Layers on which trackball gestures are active (and the cursor is suppressed).
+ * Add more entries to enable gestures on additional layers. */
 static const zmk_keymap_layer_id_t gesture_layers[] = {9};
 
 static int32_t accum_x;
@@ -80,9 +76,8 @@ static void gesture_release_work_cb(struct k_work *work) {
 
 static K_WORK_DELAYABLE_DEFINE(gesture_release_work, gesture_release_work_cb);
 
-// Raise the press from the system workqueue rather than inline in the input
-// thread, so position events are dispatched from a normal context (matching how
-// ZMK raises position events elsewhere).
+// Raise the press/release from the system workqueue rather than inline in the
+// input thread, matching how ZMK raises position events elsewhere.
 static void gesture_press_work_cb(struct k_work *work) {
     if (release_pending) {
         raise_position(pending_release_pos, false);
@@ -100,8 +95,7 @@ static void gesture_press_work_cb(struct k_work *work) {
 static K_WORK_DEFINE(gesture_press_work, gesture_press_work_cb);
 
 // Re-arm once the ball has been idle for GESTURE_IDLE_REARM_MS. Every movement
-// event pushes this back, so a single continuous motion stays disarmed (after
-// its one fire) until the user actually stops.
+// pushes this back, so one continuous motion stays disarmed after its fire.
 static void gesture_rearm_work_cb(struct k_work *work) {
     disarmed = false;
     accum_x = 0;
@@ -122,63 +116,66 @@ static bool any_gesture_layer_active(void) {
 static void fire_gesture(uint32_t position) {
     queued_press_pos = position;
     k_work_submit(&gesture_press_work);
-
     accum_x = 0;
     accum_y = 0;
 }
 
-static void trackball_gesture_cb(struct input_event *evt) {
+static int gesture_handle_event(const struct device *dev, struct input_event *event,
+                                uint32_t param1, uint32_t param2,
+                                struct zmk_input_processor_state *state) {
     if (!any_gesture_layer_active()) {
-        // Reset so the next hold starts from a clean, armed slate.
+        // Not gesturing: keep the slate clean and let the pointer work normally.
         accum_x = 0;
         accum_y = 0;
         disarmed = false;
         k_work_cancel_delayable(&gesture_rearm_work);
-        return;
+        return ZMK_INPUT_PROC_CONTINUE;
     }
 
-    if (evt->type != INPUT_EV_REL) {
-        return;
+    if (event->type == INPUT_EV_REL) {
+        // Any movement (re)starts the idle timer that re-arms the gesture.
+        k_work_reschedule(&gesture_rearm_work, K_MSEC(GESTURE_IDLE_REARM_MS));
+
+        if (!disarmed) {
+            switch (event->code) {
+            case INPUT_REL_X:
+                accum_x += event->value;
+                break;
+            case INPUT_REL_Y:
+                accum_y += event->value;
+                break;
+            default:
+                break;
+            }
+
+            int32_t ax = accum_x < 0 ? -accum_x : accum_x;
+            int32_t ay = accum_y < 0 ? -accum_y : accum_y;
+
+            if (ax >= GESTURE_THRESHOLD || ay >= GESTURE_THRESHOLD) {
+                // One fire per continuous motion; the idle timer re-arms later.
+                disarmed = true;
+                if (ax >= ay) {
+                    // Raw X. If left/right feel swapped, swap these two.
+                    fire_gesture(accum_x > 0 ? GESTURE_POS_RIGHT : GESTURE_POS_LEFT);
+                } else {
+                    // Raw Y. If up/down feel swapped, swap these two.
+                    fire_gesture(accum_y > 0 ? GESTURE_POS_DOWN : GESTURE_POS_UP);
+                }
+            }
+        }
     }
 
-    // Any movement (re)starts the idle timer that re-arms the gesture.
-    k_work_reschedule(&gesture_rearm_work, K_MSEC(GESTURE_IDLE_REARM_MS));
-
-    // Already fired for this continuous motion: ignore until the ball goes idle.
-    if (disarmed) {
-        return;
-    }
-
-    switch (evt->code) {
-    case INPUT_REL_X:
-        accum_x += evt->value;
-        break;
-    case INPUT_REL_Y:
-        accum_y += evt->value;
-        break;
-    default:
-        return;
-    }
-
-    int32_t ax = accum_x < 0 ? -accum_x : accum_x;
-    int32_t ay = accum_y < 0 ? -accum_y : accum_y;
-
-    if (ax < GESTURE_THRESHOLD && ay < GESTURE_THRESHOLD) {
-        return;
-    }
-
-    // One fire per continuous motion; the idle timer above re-arms it later.
-    disarmed = true;
-    if (ax >= ay) {
-        // If left/right feel swapped, swap these two constants.
-        fire_gesture(accum_x > 0 ? GESTURE_POS_RIGHT : GESTURE_POS_LEFT);
-    } else {
-        // If up/down feel swapped, swap these two constants.
-        fire_gesture(accum_y > 0 ? GESTURE_POS_DOWN : GESTURE_POS_UP);
-    }
+    // Suppress the pointer while a gesture layer is active. STOP halts the rest
+    // of the processor chain (no cursor movement) without modifying the value.
+    return ZMK_INPUT_PROC_STOP;
 }
 
-// NULL device => receive input events from every device, like src/board.c does.
-INPUT_CALLBACK_DEFINE(NULL, trackball_gesture_cb);
+static const struct zmk_input_processor_driver_api gesture_driver_api = {
+    .handle_event = gesture_handle_event,
+};
 
-#endif /* CONFIG_ZMK_SPLIT_ROLE_CENTRAL */
+#define GESTURE_INST(n)                                                                            \
+    DEVICE_DT_INST_DEFINE(n, NULL, NULL, NULL, NULL, POST_KERNEL,                                  \
+                          CONFIG_KERNEL_INIT_PRIORITY_DEFAULT, &gesture_driver_api);
+
+DT_INST_FOREACH_STATUS_OKAY(GESTURE_INST)
