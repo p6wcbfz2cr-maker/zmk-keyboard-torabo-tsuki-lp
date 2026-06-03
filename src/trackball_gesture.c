@@ -25,9 +25,9 @@
 #include <zephyr/logging/log.h>
 
 #include <drivers/input_processor.h>
-#include <zmk/keymap.h>
 #include <zmk/event_manager.h>
 #include <zmk/events/position_state_changed.h>
+#include <zmk/events/layer_state_changed.h>
 
 LOG_MODULE_REGISTER(trackball_gesture, CONFIG_ZMK_LOG_LEVEL);
 
@@ -50,7 +50,7 @@ LOG_MODULE_REGISTER(trackball_gesture, CONFIG_ZMK_LOG_LEVEL);
 
 /* Layers on which trackball gestures are active (and the cursor is suppressed).
  * Add more entries to enable gestures on additional layers. */
-static const zmk_keymap_layer_id_t gesture_layers[] = {9};
+static const uint8_t gesture_layers[] = {9};
 
 static int32_t accum_x;
 static int32_t accum_y;
@@ -104,14 +104,30 @@ static void gesture_rearm_work_cb(struct k_work *work) {
 
 static K_WORK_DELAYABLE_DEFINE(gesture_rearm_work, gesture_rearm_work_cb);
 
+// Track gesture-layer activation via layer_state_changed events instead of
+// calling zmk_keymap_layer_active() directly: that symbol does not link from an
+// external module, whereas the ZMK event mechanism does (as used in board.c).
+static uint32_t active_gesture_mask;
+
 static bool any_gesture_layer_active(void) {
+    return active_gesture_mask != 0;
+}
+
+static int gesture_layer_listener(const zmk_event_t *eh) {
+    const struct zmk_layer_state_changed *ev = as_zmk_layer_state_changed(eh);
+    if (ev == NULL) {
+        return ZMK_EV_EVENT_BUBBLE;
+    }
     for (size_t i = 0; i < ARRAY_SIZE(gesture_layers); i++) {
-        if (zmk_keymap_layer_active(gesture_layers[i])) {
-            return true;
+        if (gesture_layers[i] == ev->layer) {
+            WRITE_BIT(active_gesture_mask, i, ev->state);
         }
     }
-    return false;
+    return ZMK_EV_EVENT_BUBBLE;
 }
+
+ZMK_LISTENER(trackball_gesture_layers, gesture_layer_listener);
+ZMK_SUBSCRIPTION(trackball_gesture_layers, zmk_layer_state_changed);
 
 static void fire_gesture(uint32_t position) {
     queued_press_pos = position;

@@ -75,6 +75,8 @@ src/                        ← カスタムCコード（board.c=分割電源管
 - **カーソル抑制**: ジェスチャーレイヤー中は `zip_gesture` が `ZMK_INPUT_PROC_STOP` を返し、後続プロセッサ（transform/temp_layer/scaler）を止めてカーソルを動かさない。値をゼロ化しないため検出は壊れない。
   - かつて `gesture_suppress`（`zip_xy_scaler 0`）で抑制を試みたが、入力コールバックは同一イベント実体を順に処理し、リスナーが検出より先に走って scaler 0 が検出側の読み取り値もゼロ化していたため失敗した。入力プロセッサ化（＝リスナーの先頭で処理）でこれを解消した。
 - **方向の注意**: `zip_gesture` は `zip_xy_transform`（X/Y反転）より前で生値を読むため、カーソルの向きと検出の向きが反転している。逆に感じる場合は `src/trackball_gesture.c` の `GESTURE_POS_*` の対応を入れ替える。
+- **モジュール越しのリンク制約（重要）**: このリポジトリは ZMK の外部モジュール（`ZMK_EXTRA_MODULES`）として読み込まれる。`zmk_keymap_layer_active()` など ZMK 本体内の一部関数は**外部モジュールからリンクできず**（`undefined reference`）、一方でイベント機構（`ZMK_LISTENER`/`ZMK_SUBSCRIPTION`/`raise_*`）は `board.c` 同様リンクできる。そのため `zip_gesture` はレイヤー判定を **`zmk_layer_state_changed` イベントの購読**で自前追跡している（直接 `zmk_keymap_layer_active` を呼ばない）。新規 C コードで ZMK 本体の関数を呼ぶ際はこの制約に注意。
+- **モジュールの dts_root**: カスタム binding を認識させるため `zephyr/module.yml` に `dts_root: .` が必要（`dts/bindings/` を検索対象に追加）。
 - **調整パラメータ**（`src/trackball_gesture.c` 冒頭の `#define`）: `GESTURE_THRESHOLD`（発火に必要な変位量／生値ベース）, `GESTURE_IDLE_REARM_MS`（このms間アイドルで再武装）, `GESTURE_RELEASE_DELAY_MS`（press→release 間隔）, `gesture_layers[]`（ジェスチャー有効レイヤーの配列）。
 
 **設定手順（新しいジェスチャーを足す場合）**:
