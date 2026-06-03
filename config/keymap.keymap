@@ -192,15 +192,21 @@
 };
 
 &pointing_listener {
+    /* Cursor direction. Was (X_INVERT | Y_INVERT) which moved the cursor
+     * opposite to the ball; 0 (no inversion) makes the cursor follow the ball.
+     * To re-flip an axis, add INPUT_TRANSFORM_X_INVERT and/or
+     * INPUT_TRANSFORM_Y_INVERT here AND in fast_mouse AND in the gesture
+     * override below (keep all three identical so the gesture arrows keep
+     * matching the cursor). */
     input-processors =
-        <&zip_xy_transform (INPUT_TRANSFORM_X_INVERT | INPUT_TRANSFORM_Y_INVERT)>,
+        <&zip_xy_transform 0>,
         <&zip_temp_layer 5 1200>,
         <&zip_xy_scaler 40 100>;
 
     fast_mouse {
         layers = <8>;
         input-processors =
-            <&zip_xy_transform (INPUT_TRANSFORM_X_INVERT | INPUT_TRANSFORM_Y_INVERT)>,
+            <&zip_xy_transform 0>,
             <&zip_xy_scaler 100 100>;
     };
 
@@ -222,12 +228,15 @@
             <&zip_scroll_snap>;
     };
 
-    /* Gesture layer (9): zip_gesture is the ONLY processor, so it runs only
-     * while layer 9 is active (= no layer query needed in C). It detects swipes
-     * and returns STOP, which both suppresses the cursor and skips the base
-     * chain (so zip_temp_layer / auto-mouse does not trigger either). */
+    /* Gesture layer (9): runs only while layer 9 is active (= no layer query
+     * needed in C). zip_xy_transform is applied first with the SAME flags as the
+     * base cursor so the swipe directions match the cursor; then zip_gesture
+     * detects swipes and returns STOP, which suppresses the cursor and skips the
+     * base chain (so zip_temp_layer / auto-mouse does not trigger either). */
     gesture {
         layers = <9>;
-        input-processors = <&zip_gesture>;
+        input-processors =
+            <&zip_xy_transform 0>,
+            <&zip_gesture>;
     };
 };
