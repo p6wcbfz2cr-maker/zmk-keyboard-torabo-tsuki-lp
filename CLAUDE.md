@@ -2,6 +2,10 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## 会話スタイル
+
+ユーザーとの会話は敬語でやり取りすること。
+
 ## 概要
 
 torabo-tsuki LP キーボード向け ZMK ファームウェア設定リポジトリ。ビルドは GitHub Actions で自動実行される。ローカルビルドは不要で、編集後に `master` ブランチへ push するだけでファームウェアが生成される。
