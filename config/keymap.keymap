@@ -100,7 +100,7 @@
             >;
         };
 
-        Mouse_Fast {
+        Mouse_Slow {
             bindings = <
 &trans  &trans  &trans  &trans  &trans  &trans                  &trans  &trans  &trans  &trans  &trans  &trans
 &trans  &trans  &trans  &trans  &trans  &trans                  &trans  &trans  &trans  &trans  &trans  &trans
@@ -192,18 +192,18 @@
     /* Cursor direction. (X_INVERT | Y_INVERT) is the correct cursor direction.
      * The gesture override below uses the SAME flags so the swipe arrows match
      * the cursor. To change direction, edit these flags in all three places
-     * (base, fast_mouse, gesture override) identically. */
+     * (base, slow_mouse, gesture override) identically. */
 
     input-processors =
         <&zip_xy_transform (INPUT_TRANSFORM_X_INVERT | INPUT_TRANSFORM_Y_INVERT)>,
         <&zip_temp_layer 5 5000>,
-        <&zip_xy_scaler 40 100>;
+        <&zip_xy_scaler 60 100>;
 
-    fast_mouse {
+    slow_mouse {
         layers = <8>;
         input-processors =
             <&zip_xy_transform (INPUT_TRANSFORM_X_INVERT | INPUT_TRANSFORM_Y_INVERT)>,
-            <&zip_xy_scaler 100 100>;
+            <&zip_xy_scaler 40 100>;
     };
 
     scroll_mac {
