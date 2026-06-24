@@ -149,7 +149,7 @@
             compatible = "zmk,behavior-hold-tap";
             #binding-cells = <2>;
             flavor = "tap-preferred";
-            tapping-term-ms = <100>;
+            tapping-term-ms = <125>;
             quick-tap-ms = <0>;
             require-prior-idle-ms = <125>;
             bindings = <&kp>, <&kp>;
@@ -158,8 +158,8 @@
         lt_idle: lt_idle {
             compatible = "zmk,behavior-hold-tap";
             #binding-cells = <2>;
-            flavor = "balanced";
-            tapping-term-ms = <200>;
+            flavor = "tap-preferred";
+            tapping-term-ms = <125>;
             quick-tap-ms = <0>;
             require-prior-idle-ms = <125>;
             bindings = <&mo>, <&kp>;
