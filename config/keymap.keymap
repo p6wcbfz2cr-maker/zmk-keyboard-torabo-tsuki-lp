@@ -148,10 +148,10 @@
         mt_idle: mt_idle {
             compatible = "zmk,behavior-hold-tap";
             #binding-cells = <2>;
-            flavor = "tap-preferred";
+            flavor = "balanced";
             tapping-term-ms = <125>;
             quick-tap-ms = <0>;
-            require-prior-idle-ms = <125>;
+            require-prior-idle-ms = <150>;
             bindings = <&kp>, <&kp>;
         };
 
