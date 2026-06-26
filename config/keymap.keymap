@@ -76,7 +76,7 @@
 &trans             &trans             &trans             &trans             &trans             &trans                                                   &trans             &trans     &trans     &trans     &trans  &trans
 &trans             &mo 8              &mo 8              &mo 8              &mo 8              &trans             &trans             &trans             &trans             &mkp LCLK  &mkp MCLK  &mkp RCLK  &trans  &trans
 &trans             &trans             &trans             &trans             &trans             &trans             &trans             &trans             &trans             &mkp LCLK  &mkp MCLK  &mkp RCLK  &trans  &trans
-&exit_mouse_macro  &exit_mouse_macro  &exit_mouse_macro  &exit_mouse_macro  &exit_mouse_macro  &exit_mouse_macro  &exit_mouse_macro  &exit_mouse_macro  &exit_mouse_macro  &trans     &trans     &trans     &trans  &trans
+&exit_mouse_macro  &exit_mouse_macro  &exit_mouse_macro  &exit_mouse_macro  &exit_mouse_macro  &exit_mouse_macro  &exit_mouse_macro  &exit_mouse_macro  &trans             &trans     &trans     &trans     &trans  &trans
             >;
         };
 
@@ -171,12 +171,15 @@
         #input-processor-cells = <2>;
         require-prior-idle-ms = <500>;
         excluded-positions = <
-            // L size layout indices
+            // L size layout indices (bottom-row right N M , . / + home-row J K L)
             46 47 48 49 50
-            // M size layout indices
+            33 34 35
+            // M size layout indices (bottom-row right + home-row J K L)
             32 33 34 35 36
-            // S size layout indices
+            19 20 21
+            // S size layout indices (bottom-row right + home-row J K L)
             27 28 29 30 31
+            16 17 18
             // Local un-offset right half indices (just in case)
             39 40 41 42 43
         >;
