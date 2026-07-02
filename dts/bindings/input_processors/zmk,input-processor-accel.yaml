@@ -1,0 +1,47 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
+description: |
+  Trackball cursor acceleration input processor. Scales REL_X/REL_Y movement by a
+  factor that ramps from min-factor to max-factor (both expressed as a percentage,
+  same convention as zmk,input-processor-scaler's mult/div) as the instantaneous
+  speed goes from speed-threshold to speed-max counts/sec, following an integer
+  power curve (accel-exponent). All math is fixed-point (no floating point).
+  Implemented in src/trackball_accel.c.
+
+compatible: "zmk,input-processor-accel"
+
+include: ip_two_param.yaml
+# input-processor-cells: min-factor (percent), max-factor (percent)
+#   e.g. <&zip_xy_accel 65 100>  => 65% at/below speed-threshold, ramping up to
+#   100% at/above speed-max.
+
+properties:
+  speed-threshold:
+    type: int
+    default: 600
+    description: |
+      Speed (raw counts/sec) at or below which min-factor is applied unchanged.
+  speed-max:
+    type: int
+    default: 3000
+    description: |
+      Speed (raw counts/sec) at or above which max-factor is applied (ceiling).
+  accel-exponent:
+    type: int
+    default: 2
+    description: |
+      Integer power (1-4) of the ease-in curve between speed-threshold and
+      speed-max. 1 = linear ramp, 2 = quadratic (default), higher = more
+      "sluggish start, sharp ramp near speed-max".
+  min-dt-ms:
+    type: int
+    default: 4
+    description: |
+      Floor clamp on the inter-sample time used for the speed calculation, to
+      avoid divide-by-near-zero speed spikes from back-to-back events.
+  max-dt-ms:
+    type: int
+    default: 100
+    description: |
+      Ceiling clamp on the inter-sample time; gaps larger than this are treated
+      as the start of a fresh motion (speed resets toward min-factor) rather
+      than an artificially tiny computed speed.

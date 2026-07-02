@@ -105,6 +105,22 @@
         #input-processor-cells = <0>;
     };
 
+    // Trackball cursor acceleration processor (see src/trackball_accel.c).
+    // Wired ONLY into the base (normal cursor) chain of &pointing_listener,
+    // replacing the previous flat zip_xy_scaler. track-remainders keeps
+    // sub-1-count fractional scaling precise at low speed (carries the
+    // rounding remainder to the next event) instead of truncating every time.
+    zip_xy_accel: zip_xy_accel {
+        compatible = "zmk,input-processor-accel";
+        #input-processor-cells = <2>;
+        track-remainders;
+        speed-threshold = <600>;
+        speed-max = <3000>;
+        accel-exponent = <2>;
+        min-dt-ms = <4>;
+        max-dt-ms = <100>;
+    };
+
     vbatt: vbatt {
         // Disable default battery monitoring
         status = "disabled";
