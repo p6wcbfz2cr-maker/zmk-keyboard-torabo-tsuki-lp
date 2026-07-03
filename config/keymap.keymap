@@ -203,13 +203,13 @@
     input-processors =
         <&zip_xy_transform (INPUT_TRANSFORM_X_INVERT | INPUT_TRANSFORM_Y_INVERT)>,
         <&zip_temp_layer 5 5000>,
-        <&zip_xy_accel 65 100>;
+        <&zip_xy_accel 65 120>;
         /* Was <&zip_xy_scaler 65 100>. zip_xy_accel replaces the flat scaler
          * in-place (same chain position, right after zip_temp_layer), so
          * zip_temp_layer keeps seeing exactly the same raw input timing it
          * always has - acceleration does not change auto-mouse trigger
          * timing. 65 = min-factor% (feel matches the old flat 65% at slow
-         * speed), 100 = max-factor% reached only during fast flicks. Tune
+         * speed), 120 = max-factor% reached only during fast flicks. Tune
          * further via the speed-threshold/speed-max/accel-exponent/min-dt-ms/
          * max-dt-ms properties on the zip_xy_accel node in
          * torabo_tsuki_lp.dtsi. */
