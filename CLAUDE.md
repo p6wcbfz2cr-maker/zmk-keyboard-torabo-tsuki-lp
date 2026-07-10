@@ -63,7 +63,7 @@ src/                        ← カスタムCコード（board.c=分割電源管
 
 - **`mt_idle`**: `require-prior-idle-ms = <125>` 付き Mod-Tap。タイピングエリアのホームポジション修飾キー（`a`=右Ctrl、`z`=左Shift、`;`=右Ctrl、`/`=右Shift）に使用。高速打鍵時の誤爆防止。
 - **`lt_idle`**: 同じく `require-prior-idle-ms = <125>` 付き Layer-Tap。`;` キーのスクロールレイヤー遷移に使用。
-- **`exit_mouse_macro`**: マクロ。`mouse` レイヤー（Layer 5）を OFF 専用の `tog_off 5` で解除する。mouseレイヤーの親指行キー全体に配置。
+- **`exit_mouse_macro`**: マクロ。`mouse` レイヤー（Layer 5）を OFF 専用の `tog_off 5` で解除する。`mouse` レイヤー内の左親指2箇所（`lt 9 TAB` の位置、`lt 2 SPACE` の位置）に配置し、どちらをタップしても即座にマウスレイヤーから抜けられる。Mac/Winレイヤーでの本来の機能（Tab/Space）には影響しない。
 
 ### トラックボールジェスチャー（方向→アクション）
 

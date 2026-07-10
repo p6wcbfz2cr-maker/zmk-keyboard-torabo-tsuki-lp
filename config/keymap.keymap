@@ -76,7 +76,7 @@
 &trans             &trans             &trans             &trans             &trans             &trans                                                   &trans             &trans     &trans     &trans     &trans  &trans
 &trans             &mo 8              &mo 8              &mo 8              &mo 8              &trans             &trans             &trans             &trans             &mkp LCLK  &mkp MCLK  &mkp RCLK  &trans  &trans
 &trans             &trans             &trans             &trans             &trans             &trans             &trans             &trans             &trans             &mkp LCLK  &mkp MCLK  &mkp RCLK  &trans  &trans
-&trans             &trans             &trans             &trans             &trans             &trans             &exit_mouse_macro  &trans             &trans     &trans     &trans     &trans  &trans  &trans
+&trans             &trans             &trans             &trans             &exit_mouse_macro  &trans             &exit_mouse_macro  &trans             &trans     &trans     &trans     &trans  &trans  &trans
             >;
         };
 
