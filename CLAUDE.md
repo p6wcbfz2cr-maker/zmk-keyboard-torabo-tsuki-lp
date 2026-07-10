@@ -53,7 +53,7 @@ src/                        ← カスタムCコード（board.c=分割電源管
 | Number | 2 | 数字・記号（左親指スペース長押し） |
 | Function | 3 | ファンクション・矢印・BT選択（右親指スペース長押し） |
 | layer_4 | 4 | 左親指バックスペース長押し（未割当） |
-| mouse | 5 | オートマウス（トラックボール動作で自動遷移） |
+| mouse | 5 | マウス操作（`/` キー長押しで一時遷移。離すと即座に通常入力へ戻る） |
 | Mouse_Scroll_Mac | 6 | Macスクロール（`;` 長押しで遷移） |
 | Mouse_Scroll_Win | 7 | Winスクロール（`;` 長押しで遷移） |
 | Mouse_Fast | 8 | 高速カーソル（mouseレイヤー中に `a`/`s`/`d`/`f` 長押し） |
@@ -61,9 +61,8 @@ src/                        ← カスタムCコード（board.c=分割電源管
 
 ### 主要なカスタムビヘイビア
 
-- **`mt_idle`**: `require-prior-idle-ms = <125>` 付き Mod-Tap。タイピングエリアのホームポジション修飾キー（`a`=右Ctrl、`z`=左Shift、`;`=右Ctrl、`/`=右Shift）に使用。高速打鍵時の誤爆防止。
-- **`lt_idle`**: 同じく `require-prior-idle-ms = <125>` 付き Layer-Tap。`;` キーのスクロールレイヤー遷移に使用。
-- **`exit_mouse_macro`**: マクロ。`mouse` レイヤー（Layer 5）を OFF 専用の `tog_off 5` で解除する。mouseレイヤーの親指行キー全体に配置。
+- **`mt_idle`**: `require-prior-idle-ms = <150>` 付き Mod-Tap。タイピングエリアのホームポジション修飾キー（`a`=右Ctrl、`z`=左Shift、Number/Functionレイヤーの同ポジション）に使用。高速打鍵時の誤爆防止。
+- **`lt_idle`**: 同じく `require-prior-idle-ms = <125>` 付き Layer-Tap。`;` キーのスクロールレイヤー遷移（Layer 6/7）と、`/` キーの mouse レイヤー遷移（Layer 5、`&lt_idle 5 SLASH`）に使用。ホールドでレイヤー、タップで元のキー（`;`/`/`）を出す。
 
 ### トラックボールジェスチャー（方向→アクション）
 
@@ -91,12 +90,12 @@ src/                        ← カスタムCコード（board.c=分割電源管
 
 ### トラックボール入力処理（`pointing_listener`）
 
-通常時は `zip_xy_scaler 40 100`（40%速度）＋ `zip_temp_layer 5 1200`（1200ms で Layer 5 へ一時遷移）。
+通常時（カーソル移動）は `zip_xy_accel 65 120`（65%〜120%の加速度カーブ）。Layer 5（`mouse`）はトラックボール動作による自動遷移ではなく、`/` キー（`&lt_idle 5 SLASH`）をホールドしている間だけ有効になる。
 
 | プロファイル | 発火レイヤー | 速度 |
 |---|---|---|
-| デフォルト | — | 40% |
-| `fast_mouse` | Layer 8 | 100%（通常の約2.5倍） |
+| デフォルト | — | 65%〜120%（加速度カーブ） |
+| `slow_mouse`（Layer 8, 内部的な名称。実質は fast_mouse 用） | Layer 8 | 100%（`mouse` レイヤー中に `a`/`s`/`d`/`f` ホールドで遷移） |
 | `scroll_mac` | Layer 6 | スクロール（Mac方向） |
 | `scroll_win` | Layer 7 | スクロール（Win方向） |
 

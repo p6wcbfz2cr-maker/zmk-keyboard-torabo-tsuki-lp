@@ -25,7 +25,7 @@
 &none  &none                     &none         &none         &none        &none                                          &none        &none  &none      &none    &none                       &none
 &none  &kp Q                     &kp W         &kp E         &kp R        &kp T                                          &kp Y        &kp U  &kp I      &kp O    &kp P                       &none
 &none  &mt_idle RIGHT_CONTROL A  &kp S         &kp D         &kp F        &kp G          &none           &none           &kp H        &kp J  &kp K      &kp L    &lt_idle 6 SEMICOLON        &none
-&none  &mt_idle LEFT_SHIFT Z     &kp X         &kp C         &kp V        &kp B          &kp LANGUAGE_2  &kp LANGUAGE_1  &kp N        &kp M  &kp COMMA  &kp DOT  &mt_idle RIGHT_SHIFT SLASH  &none
+&none  &mt_idle LEFT_SHIFT Z     &kp X         &kp C         &kp V        &kp B          &kp LANGUAGE_2  &kp LANGUAGE_1  &kp N        &kp M  &kp COMMA  &kp DOT  &lt_idle 5 SLASH             &none
 &none  &kp LCTRL                 &kp LEFT_GUI  &kp LEFT_ALT  &lt 2 SPACE  &kp BACKSPACE  &lt 9 TAB       &mt RSHIFT ESC  &lt 3 SPACE  &none  &none      &mo 6    &lt 6 ENTER                 &none
             >;
         };
@@ -76,7 +76,7 @@
 &trans             &trans             &trans             &trans             &trans             &trans                                                   &trans             &trans     &trans     &trans     &trans  &trans
 &trans             &mo 8              &mo 8              &mo 8              &mo 8              &trans             &trans             &trans             &trans             &mkp LCLK  &mkp MCLK  &mkp RCLK  &trans  &trans
 &trans             &trans             &trans             &trans             &trans             &trans             &trans             &trans             &trans             &mkp LCLK  &mkp MCLK  &mkp RCLK  &trans  &trans
-&trans             &trans             &trans             &trans             &trans             &trans             &exit_mouse_macro  &trans             &trans     &trans     &trans     &trans  &trans  &trans
+&trans             &trans             &trans             &trans             &trans             &trans             &trans             &trans             &trans     &trans     &trans     &trans  &trans  &trans
             >;
         };
 
@@ -130,21 +130,7 @@
 };
 
 / {
-    macros {
-        exit_mouse_macro: exit_mouse_macro {
-            compatible = "zmk,behavior-macro";
-            #binding-cells = <0>;
-            bindings = <&macro_pause_for_release>, <&macro_tap>, <&tog_off 5>;
-        };
-    };
-
     behaviors {
-        tog_off: toggle_layer_off_only {
-            compatible = "zmk,behavior-toggle-layer";
-            #binding-cells = <1>;
-            toggle-mode = "off";
-        };
-
         mt_idle: mt_idle {
             compatible = "zmk,behavior-hold-tap";
             #binding-cells = <2>;
@@ -165,28 +151,6 @@
             bindings = <&mo>, <&kp>;
         };
     };
-
-    zip_temp_layer: zip_temp_layer {
-        compatible = "zmk,input-processor-temp-layer";
-        #input-processor-cells = <2>;
-        require-prior-idle-ms = <500>;
-        excluded-positions = <
-            // L size layout indices (bottom-row right N M , . / + home-row J K L)
-            46 47 48 49 50
-            33 34 35
-            58 // left thumb-right (lt 9 TAB) = auto-mouse cancel key (exit_mouse_macro)
-            // M size layout indices (bottom-row right + home-row J K L)
-            32 33 34 35 36
-            19 20 21
-            44 // left thumb-right cancel key
-            // S size layout indices (bottom-row right + home-row J K L)
-            27 28 29 30 31
-            16 17 18
-            37 // left thumb-right cancel key
-            // Local un-offset right half indices (just in case)
-            39 40 41 42 43
-        >;
-    };
 };
 
 &mt {
@@ -202,17 +166,16 @@
 
     input-processors =
         <&zip_xy_transform (INPUT_TRANSFORM_X_INVERT | INPUT_TRANSFORM_Y_INVERT)>,
-        <&zip_temp_layer 5 5000>,
         <&zip_xy_accel 65 120>;
         /* Was <&zip_xy_scaler 65 100>. zip_xy_accel replaces the flat scaler
-         * in-place (same chain position, right after zip_temp_layer), so
-         * zip_temp_layer keeps seeing exactly the same raw input timing it
-         * always has - acceleration does not change auto-mouse trigger
-         * timing. 65 = min-factor% (feel matches the old flat 65% at slow
+         * in-place. 65 = min-factor% (feel matches the old flat 65% at slow
          * speed), 120 = max-factor% reached only during fast flicks. Tune
          * further via the speed-threshold/speed-max/accel-exponent/min-dt-ms/
          * max-dt-ms properties on the zip_xy_accel node in
-         * torabo_tsuki_lp.dtsi. */
+         * torabo_tsuki_lp.dtsi.
+         *
+         * Mouse layer (5) is no longer auto-triggered by trackball movement;
+         * hold the `/` key (&lt_idle 5 SLASH) to enter it instead. */
 
     slow_mouse {
         layers = <8>;
@@ -243,7 +206,7 @@
      * needed in C). zip_xy_transform is applied first with the SAME flags as the
      * base cursor so the swipe directions match the cursor; then zip_gesture
      * detects swipes and returns STOP, which suppresses the cursor and skips the
-     * base chain (so zip_temp_layer / auto-mouse does not trigger either). */
+     * base chain. */
 
     gesture {
         layers = <9>;
