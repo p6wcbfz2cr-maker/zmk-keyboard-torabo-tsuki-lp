@@ -151,7 +151,10 @@
             flavor = "balanced";
             tapping-term-ms = <250>;
             quick-tap-ms = <0>;
-            require-prior-idle-ms = <150>;
+            require-prior-idle-ms = <80>; /* was 150; lowered so Shift-holds right after the previous
+                                            * keystroke (e.g. starting a new word right after space)
+                                            * still get a chance to resolve as Hold instead of being
+                                            * forced to Tap. */
             bindings = <&kp>, <&kp>;
         };
 

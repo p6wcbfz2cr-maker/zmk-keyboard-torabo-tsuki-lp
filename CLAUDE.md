@@ -61,7 +61,7 @@ src/                        ← カスタムCコード（board.c=分割電源管
 
 ### 主要なカスタムビヘイビア
 
-- **`mt_idle`**: `require-prior-idle-ms = <125>` 付き Mod-Tap。タイピングエリアのホームポジション修飾キー（`a`=右Ctrl、`z`=左Shift、`;`=右Ctrl、`/`=右Shift）に使用。高速打鍵時の誤爆防止。
+- **`mt_idle`**: `require-prior-idle-ms = <80>` 付き Mod-Tap。タイピングエリアのホームポジション修飾キー（`a`=右Ctrl、`z`=左Shift、Number/Functionレイヤーの同ポジション）に使用。高速打鍵時の誤爆防止。
 - **`lt_idle`**: 同じく `require-prior-idle-ms = <125>` 付き Layer-Tap。`;` キーのスクロールレイヤー遷移に使用。
 - **`exit_mouse_macro`**: マクロ。`mouse` レイヤー（Layer 5）を OFF 専用の `tog_off 5` で解除する。mouseレイヤーの親指行キー全体に配置。
 
