@@ -61,9 +61,16 @@ src/                        ← カスタムCコード（board.c=分割電源管
 
 ### 主要なカスタムビヘイビア
 
-- **`mt_idle`**: `require-prior-idle-ms = <80>` 付き Mod-Tap。タイピングエリアのホームポジション修飾キー（`a`=右Ctrl、`z`=左Shift、Number/Functionレイヤーの同ポジション）に使用。高速打鍵時の誤爆防止。
-- **`lt_idle`**: 同じく `require-prior-idle-ms = <125>` 付き Layer-Tap。`;` キーのスクロールレイヤー遷移に使用。
+- **`mt_idle`**: `require-prior-idle-ms = <80>` 付き Mod-Tap。`flavor = "hold-preferred"`（既定はbalancedだったが、割り込みキーとの相対タイミングで判定が揺れる問題があり変更。経緯は `plans/06_mt_idle_lt_flavor_hold_preferred.md` 参照）。タイピングエリアのホームポジション修飾キー（`a`=右Ctrl、`z`=左Shift、Number/Functionレイヤーの同ポジション）に使用。高速打鍵時の誤爆防止。
+- **`lt_idle`**: 同じく `require-prior-idle-ms = <125>` 付き Layer-Tap。`flavor = "tap-preferred"`（既定のまま、今回変更なし）。`;` キーのスクロールレイヤー遷移に使用。
 - **`exit_mouse_macro`**: マクロ。`mouse` レイヤー（Layer 5）を OFF 専用の `tog_off 5` で解除する。mouseレイヤーの親指行キー全体に配置。
+
+### `&mt`/`&lt` のグローバルoverride
+
+`mt_idle`/`lt_idle`とは別に、ZMK標準ビヘイビアそのもの（`&mt`/`&lt`）にもグローバルoverrideを設定している（`config/keymap.keymap`の`behaviors {}`ブロック直後）。タイピングエリア外（親指キー等）で使われる素の`&mt`/`&lt`バインディング全般に適用される。
+
+- **`&mt`**: `tapping-term-ms = <200>`, `flavor = "balanced"`。
+- **`&lt`**: `tapping-term-ms = <200>`（ZMK既定と同値）, `flavor = "hold-preferred"`（既定のtap-preferredから変更）。`&lt 2 SPACE`/`&lt 9 TAB`等5箇所に適用。`mt_idle`のflavor変更と同じ仮説（balanced/tap-preferredは割り込みキーとの相対タイミングで判定が揺れる）で導入した。誤ホールド（意図せずレイヤーが起動する）リスクは上がるトレードオフがある。詳細は `plans/06_mt_idle_lt_flavor_hold_preferred.md` を参照。
 
 ### トラックボールジェスチャー（方向→アクション）
 

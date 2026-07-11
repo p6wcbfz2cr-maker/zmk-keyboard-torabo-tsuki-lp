@@ -148,7 +148,10 @@
         mt_idle: mt_idle {
             compatible = "zmk,behavior-hold-tap";
             #binding-cells = <2>;
-            flavor = "balanced";
+            flavor = "hold-preferred"; /* was balanced; balanced resolves Hold/Tap by comparing release
+                                         * order with the interrupting key, which is unstable when both
+                                         * are pressed almost simultaneously (e.g. Shift+Z). hold-preferred
+                                         * commits to Hold as soon as another key is pressed while held. */
             tapping-term-ms = <250>;
             quick-tap-ms = <0>;
             require-prior-idle-ms = <80>; /* was 150; lowered so Shift-holds right after the previous
@@ -195,6 +198,14 @@
 &mt {
     tapping-term-ms = <200>; /* 200ミリ秒以上長押しでHold判定 */
     flavor = "balanced"; /* balanc他のキーと被っても、200ms以内に離せばTap優位 */
+};
+
+&lt {
+    tapping-term-ms = <200>; /* ZMK標準値(200ms)のまま。&mtとの対比のため明示しておく */
+    flavor = "hold-preferred"; /* 標準はtap-preferred。mt_idleと同じ理由（balanced/tap-preferredは
+                                 * 割り込みキーとの相対タイミングで判定が揺れやすい）でhold-preferredに統一。
+                                 * 誤ホールド（レイヤーが意図せず有効になる）のリスクは上がるが、狙いは「意図した
+                                 * ホールドが弾かれる」方の解消なので許容する。 */
 };
 
 &pointing_listener {
