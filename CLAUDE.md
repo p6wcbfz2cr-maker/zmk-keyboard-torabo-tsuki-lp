@@ -61,7 +61,7 @@ src/                        ← カスタムCコード（board.c=分割電源管
 
 ### 主要なカスタムビヘイビア
 
-- **`mt_idle`**: `require-prior-idle-ms = <80>` 付き Mod-Tap。`flavor = "hold-preferred"`（既定はbalancedだったが、割り込みキーとの相対タイミングで判定が揺れる問題があり変更。経緯は `plans/06_mt_idle_lt_flavor_hold_preferred.md` 参照）。タイピングエリアのホームポジション修飾キー（`a`=右Ctrl、`z`=左Shift、Number/Functionレイヤーの同ポジション）に使用。高速打鍵時の誤爆防止。
+- **`mt_idle`**: `require-prior-idle-ms = <150>` 付き Mod-Tap。`flavor = "hold-preferred"`（既定はbalancedだったが、割り込みキーとの相対タイミングで判定が揺れる問題があり変更。経緯は `plans/06_mt_idle_lt_flavor_hold_preferred.md` 参照）。`require-prior-idle-ms` は一度80msまで下げたが、hold-preferred化で「ローマ字入力のロールオーバー（za/zu/zo等）がShift+母音に誤爆する」問題が出たため150msへ再度引き上げた（経緯は `plans/07_mt_idle_require_prior_idle_re_raise.md` 参照）。タイピングエリアのホームポジション修飾キー（`a`=右Ctrl、`z`=左Shift、Number/Functionレイヤーの同ポジション）に使用。高速打鍵時の誤爆防止。
 - **`lt_idle`**: 同じく `require-prior-idle-ms = <125>` 付き Layer-Tap。`flavor = "tap-preferred"`（既定のまま、今回変更なし）。`;` キーのスクロールレイヤー遷移に使用。
 - **`exit_mouse_macro`**: マクロ。`mouse` レイヤー（Layer 5）を OFF 専用の `tog_off 5` で解除する。mouseレイヤーの親指行キー全体に配置。
 
