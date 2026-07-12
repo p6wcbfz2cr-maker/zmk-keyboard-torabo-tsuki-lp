@@ -132,8 +132,8 @@
         #input-processor-cells = <2>;
         start-speed = <1200>;
         stop-speed = <35>;
-        max-speed = <6000>;
-        friction-permille = <940>;
+        max-speed = <4800>;
+        friction-permille = <960>;
         tick-ms = <8>;
         start-delay-ms = <12>;
         min-dt-ms = <4>;

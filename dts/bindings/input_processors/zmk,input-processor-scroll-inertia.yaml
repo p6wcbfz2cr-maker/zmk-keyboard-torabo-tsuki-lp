@@ -26,12 +26,12 @@ properties:
 
   max-speed:
     type: int
-    default: 6000
+    default: 4800
     description: Maximum normalized speed captured for inertia.
 
   friction-permille:
     type: int
-    default: 940
+    default: 960
     description: Velocity retained after each tick, where 1000 means no friction.
 
   tick-ms:
