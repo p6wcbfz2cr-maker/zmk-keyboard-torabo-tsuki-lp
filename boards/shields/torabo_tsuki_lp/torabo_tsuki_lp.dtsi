@@ -135,7 +135,7 @@
         max-speed = <1000>;
         tail-speed = <100>;
         friction-permille = <950>;
-        tail-friction-permille = <985>;
+        tail-friction-permille = <900>;
         tick-ms = <8>;
         start-delay-ms = <12>;
         min-dt-ms = <4>;
