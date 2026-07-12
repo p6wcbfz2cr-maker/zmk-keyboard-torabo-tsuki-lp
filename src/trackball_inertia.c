@@ -153,11 +153,6 @@ static void inertia_tick_work(struct k_work *work) {
         return;
     }
 
-    move_hwheel = movement_for_tick(data->velocity_hwheel_fp, cfg->tick_ms,
-                                    &data->remainder_hwheel);
-    move_wheel =
-        movement_for_tick(data->velocity_wheel_fp, cfg->tick_ms, &data->remainder_wheel);
-
     data->velocity_hwheel_fp =
         (data->velocity_hwheel_fp * cfg->friction_permille) / INERTIA_FACTOR_SCALE;
     data->velocity_wheel_fp =
@@ -168,8 +163,16 @@ static void inertia_tick_work(struct k_work *work) {
     uint64_t stop_speed_fp = (uint64_t)cfg->stop_speed * VELOCITY_FP_SCALE;
 
     if (speed_fp < stop_speed_fp) {
+        // Discard the sub-count remainder on the terminating tick. Emitting it
+        // just before stopping produces a final discrete scroll jump.
         stop_locked(data);
+        k_spin_unlock(&data->lock, key);
+        return;
     } else {
+        move_hwheel = movement_for_tick(data->velocity_hwheel_fp, cfg->tick_ms,
+                                        &data->remainder_hwheel);
+        move_wheel =
+            movement_for_tick(data->velocity_wheel_fp, cfg->tick_ms, &data->remainder_wheel);
         continue_running = true;
         atomic_set(&data->scheduled_generation, generation);
     }

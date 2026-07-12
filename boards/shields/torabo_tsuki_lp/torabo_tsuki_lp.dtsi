@@ -130,9 +130,9 @@
     zip_scroll_inertia: zip_scroll_inertia {
         compatible = "zmk,input-processor-scroll-inertia";
         #input-processor-cells = <2>;
-        start-speed = <200>;
+        start-speed = <50>;
         stop-speed = <1>;
-        max-speed = <1500>;
+        max-speed = <1300>;
         friction-permille = <980>;
         tick-ms = <8>;
         start-delay-ms = <12>;
