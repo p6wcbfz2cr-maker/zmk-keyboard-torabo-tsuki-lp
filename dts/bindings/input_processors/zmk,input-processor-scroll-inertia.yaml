@@ -16,7 +16,7 @@ include: ip_two_param.yaml
 properties:
   start-speed:
     type: int
-    default: 50
+    default: 10
     description: Minimum normalized speed in counts per second required to arm inertia.
 
   stop-speed:
@@ -26,7 +26,7 @@ properties:
 
   max-speed:
     type: int
-    default: 1300
+    default: 1000
     description: Maximum normalized speed captured for inertia.
 
   tail-speed:
@@ -36,7 +36,7 @@ properties:
 
   friction-permille:
     type: int
-    default: 980
+    default: 950
     description: Velocity retained after each tick, where 1000 means no friction.
 
   tail-friction-permille:
