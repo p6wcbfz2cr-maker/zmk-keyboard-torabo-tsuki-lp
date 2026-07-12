@@ -133,7 +133,9 @@
         start-speed = <50>;
         stop-speed = <1>;
         max-speed = <1300>;
+        tail-speed = <100>;
         friction-permille = <980>;
+        tail-friction-permille = <985>;
         tick-ms = <8>;
         start-delay-ms = <12>;
         min-dt-ms = <4>;

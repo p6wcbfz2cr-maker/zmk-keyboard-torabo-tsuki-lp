@@ -41,7 +41,9 @@ struct inertia_config {
     uint32_t start_speed;
     uint32_t stop_speed;
     uint32_t max_speed;
+    uint32_t tail_speed;
     uint16_t friction_permille;
+    uint16_t tail_friction_permille;
     uint16_t tick_ms;
     uint16_t start_delay_ms;
     uint16_t min_dt_ms;
@@ -65,6 +67,7 @@ struct inertia_data {
     uint32_t normalization_div;
 
     bool active;
+    bool tail_active;
     atomic_t generation;
     atomic_t scheduled_generation;
 };
@@ -108,6 +111,7 @@ static bool axis_opposes(int32_t movement, int64_t velocity_fp, uint16_t thresho
 
 static void stop_locked(struct inertia_data *data) {
     data->active = false;
+    data->tail_active = false;
     data->velocity_hwheel_fp = 0;
     data->velocity_wheel_fp = 0;
     data->remainder_hwheel = 0;
@@ -153,18 +157,35 @@ static void inertia_tick_work(struct k_work *work) {
         return;
     }
 
-    data->velocity_hwheel_fp =
-        (data->velocity_hwheel_fp * cfg->friction_permille) / INERTIA_FACTOR_SCALE;
-    data->velocity_wheel_fp =
-        (data->velocity_wheel_fp * cfg->friction_permille) / INERTIA_FACTOR_SCALE;
+    uint64_t tail_speed_fp = (uint64_t)cfg->tail_speed * VELOCITY_FP_SCALE;
+    uint64_t current_speed_fp =
+        normalized_speed_fp(data->velocity_hwheel_fp, data->velocity_wheel_fp,
+                            data->normalization_mult, data->normalization_div);
+    if (!data->tail_active && current_speed_fp <= tail_speed_fp) {
+        data->tail_active = true;
+    }
+
+    uint16_t friction = data->tail_active ? cfg->tail_friction_permille : cfg->friction_permille;
+    data->velocity_hwheel_fp = (data->velocity_hwheel_fp * friction) / INERTIA_FACTOR_SCALE;
+    data->velocity_wheel_fp = (data->velocity_wheel_fp * friction) / INERTIA_FACTOR_SCALE;
+
+    // The soft tail damps the fractional residue as well as the velocity.
+    // This keeps a nearly-complete residual from becoming an isolated final
+    // scroll event when the tail reaches its stop threshold.
+    if (data->tail_active) {
+        data->remainder_hwheel =
+            (data->remainder_hwheel * cfg->tail_friction_permille) / INERTIA_FACTOR_SCALE;
+        data->remainder_wheel =
+            (data->remainder_wheel * cfg->tail_friction_permille) / INERTIA_FACTOR_SCALE;
+    }
 
     uint64_t speed_fp = normalized_speed_fp(data->velocity_hwheel_fp, data->velocity_wheel_fp,
                                             data->normalization_mult, data->normalization_div);
     uint64_t stop_speed_fp = (uint64_t)cfg->stop_speed * VELOCITY_FP_SCALE;
 
     if (speed_fp < stop_speed_fp) {
-        // Discard the sub-count remainder on the terminating tick. Emitting it
-        // just before stopping produces a final discrete scroll jump.
+        // The soft tail has already reduced the final sub-count remainder.
+        // Discard it here rather than emitting a discrete final scroll jump.
         stop_locked(data);
         k_spin_unlock(&data->lock, key);
         return;
@@ -300,6 +321,7 @@ static int inertia_handle_event(const struct device *dev, struct input_event *ev
                 data->normalization_mult = normalization_mult;
                 data->normalization_div = normalization_div;
                 data->active = true;
+                data->tail_active = false;
                 atomic_set(&data->scheduled_generation, generation);
                 schedule = true;
 
@@ -329,7 +351,9 @@ static int inertia_init(const struct device *dev) {
 
     if (cfg->start_speed == 0U || cfg->tick_ms == 0U || cfg->start_delay_ms == 0U ||
         cfg->min_dt_ms == 0U || cfg->sample_timeout_ms < cfg->min_dt_ms ||
+        cfg->tail_speed <= cfg->stop_speed || cfg->tail_speed > cfg->max_speed ||
         cfg->friction_permille >= INERTIA_FACTOR_SCALE ||
+        cfg->tail_friction_permille >= INERTIA_FACTOR_SCALE ||
         cfg->stop_speed >= cfg->start_speed || cfg->max_speed < cfg->start_speed) {
         LOG_ERR("Invalid trackball scroll inertia configuration");
         return -EINVAL;
@@ -353,7 +377,9 @@ static const struct zmk_input_processor_driver_api inertia_driver_api = {
         .start_speed = DT_INST_PROP(n, start_speed),                                              \
         .stop_speed = DT_INST_PROP(n, stop_speed),                                                \
         .max_speed = DT_INST_PROP(n, max_speed),                                                  \
+        .tail_speed = DT_INST_PROP(n, tail_speed),                                                \
         .friction_permille = DT_INST_PROP(n, friction_permille),                                  \
+        .tail_friction_permille = DT_INST_PROP(n, tail_friction_permille),                        \
         .tick_ms = DT_INST_PROP(n, tick_ms),                                                      \
         .start_delay_ms = DT_INST_PROP(n, start_delay_ms),                                        \
         .min_dt_ms = DT_INST_PROP(n, min_dt_ms),                                                  \

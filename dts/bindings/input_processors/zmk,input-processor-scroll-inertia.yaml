@@ -29,10 +29,20 @@ properties:
     default: 1300
     description: Maximum normalized speed captured for inertia.
 
+  tail-speed:
+    type: int
+    default: 100
+    description: Normalized speed below which to enter the soft stopping phase.
+
   friction-permille:
     type: int
     default: 980
     description: Velocity retained after each tick, where 1000 means no friction.
+
+  tail-friction-permille:
+    type: int
+    default: 985
+    description: Velocity and residual retained after each tick during the soft stopping phase.
 
   tick-ms:
     type: int
