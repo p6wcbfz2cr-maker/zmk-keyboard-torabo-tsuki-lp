@@ -228,7 +228,6 @@
          * further via the speed-threshold/speed-max/accel-exponent/min-dt-ms/
          * max-dt-ms properties on the zip_xy_accel node in
          * torabo_tsuki_lp.dtsi. */
-
     slow_mouse {
         layers = <8>;
         input-processors =
@@ -242,7 +241,8 @@
             <&zip_xy_transform (INPUT_TRANSFORM_X_INVERT)>,
             <&zip_xy_scaler 2 100>,
             <&zip_xy_to_scroll_mapper>,
-            <&zip_scroll_snap>;
+            <&zip_scroll_snap>,
+            <&zip_scroll_inertia 100 2>;
     };
 
     scroll_win {
@@ -251,7 +251,8 @@
             <&zip_xy_transform (INPUT_TRANSFORM_X_INVERT)>,
             <&zip_xy_scaler 40 100>,
             <&zip_xy_to_scroll_mapper>,
-            <&zip_scroll_snap>;
+            <&zip_scroll_snap>,
+            <&zip_scroll_inertia 100 40>;
     };
 
     /* Gesture layer (9): runs only while layer 9 is active (= no layer query

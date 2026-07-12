@@ -121,6 +121,30 @@
         max-dt-ms = <100>;
     };
 
+    // Trackball scroll inertia processor (see src/trackball_inertia.c).
+    // It observes REL_HWHEEL/REL_WHEEL after scaling, mapping, and scroll-snap.
+    // The processor's two cells normalize the preceding scaler to a common
+    // speed domain (e.g. 100/2 for Mac and 100/40 for Windows). Synthetic
+    // scroll reports use the dedicated listener below, so they do not pass
+    // through transform/scaler/mapper/snap a second time.
+    zip_scroll_inertia: zip_scroll_inertia {
+        compatible = "zmk,input-processor-scroll-inertia";
+        #input-processor-cells = <2>;
+        start-speed = <1200>;
+        stop-speed = <35>;
+        max-speed = <6000>;
+        friction-permille = <940>;
+        tick-ms = <8>;
+        start-delay-ms = <12>;
+        sample-timeout-ms = <50>;
+        reverse-cancel-threshold = <1>;
+    };
+
+    inertia_listener: inertia_listener {
+        compatible = "zmk,input-listener";
+        device = <&zip_scroll_inertia>;
+    };
+
     vbatt: vbatt {
         // Disable default battery monitoring
         status = "disabled";
