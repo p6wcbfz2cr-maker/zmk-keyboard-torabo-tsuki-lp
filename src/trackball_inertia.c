@@ -44,6 +44,7 @@ struct inertia_config {
     uint16_t friction_permille;
     uint16_t tick_ms;
     uint16_t start_delay_ms;
+    uint16_t min_dt_ms;
     uint16_t sample_timeout_ms;
     uint16_t reverse_cancel_threshold;
 };
@@ -220,11 +221,14 @@ static int inertia_handle_event(const struct device *dev, struct input_event *ev
         return -EINVAL;
     }
 
-    // Every real scroll event invalidates a pending synthetic tick. The final
-    // event in this physical sample can arm a fresh run with the latest speed.
-    atomic_inc(&data->generation);
+    // Zero-valued reports are common after fractional scaling. They must not
+    // cancel an already-armed flick, but a non-zero real scroll event must
+    // invalidate any pending synthetic tick immediately.
+    if (event->value != 0) {
+        atomic_inc(&data->generation);
+        k_work_cancel_delayable(&data->tick_work);
+    }
     atomic_val_t generation = atomic_get(&data->generation);
-    k_work_cancel_delayable(&data->tick_work);
 
     int64_t now = k_uptime_get();
     bool schedule = false;
@@ -247,17 +251,31 @@ static int inertia_handle_event(const struct device *dev, struct input_event *ev
     }
 
     if (event->sync) {
-        int32_t dt_ms = data->last_sample_time == 0 ? 0 : (int32_t)(now - data->last_sample_time);
+        bool have_previous_sample = data->last_sample_time != 0;
+        int32_t dt_ms =
+            have_previous_sample ? (int32_t)(now - data->last_sample_time) : 0;
         int32_t sample_hwheel = data->sample_hwheel;
         int32_t sample_wheel = data->sample_wheel;
 
         data->sample_hwheel = 0;
         data->sample_wheel = 0;
+
+        // A fully zero sample only flushes the scaler's fractional remainder;
+        // it is not real motion and must not alter timing or armed inertia.
+        if (sample_hwheel == 0 && sample_wheel == 0) {
+            k_spin_unlock(&data->lock, key);
+            return ZMK_INPUT_PROC_CONTINUE;
+        }
+
         data->last_sample_time = now;
 
-        if (dt_ms <= 0 || dt_ms > cfg->sample_timeout_ms) {
+        if (!have_previous_sample || dt_ms > cfg->sample_timeout_ms) {
             stop_locked(data);
         } else {
+            if (dt_ms < cfg->min_dt_ms) {
+                dt_ms = cfg->min_dt_ms;
+            }
+
             int64_t velocity_hwheel_fp =
                 ((int64_t)sample_hwheel * MS_PER_SECOND * VELOCITY_FP_SCALE) / dt_ms;
             int64_t velocity_wheel_fp =
@@ -265,8 +283,11 @@ static int inertia_handle_event(const struct device *dev, struct input_event *ev
             uint64_t speed_fp = normalized_speed_fp(velocity_hwheel_fp, velocity_wheel_fp,
                                                     normalization_mult, normalization_div);
             uint64_t start_speed_fp = (uint64_t)cfg->start_speed * VELOCITY_FP_SCALE;
+            uint64_t stop_speed_fp = (uint64_t)cfg->stop_speed * VELOCITY_FP_SCALE;
+            bool crosses_start_threshold = speed_fp >= start_speed_fp;
+            bool remains_armed = data->active && speed_fp >= stop_speed_fp;
 
-            if (speed_fp >= start_speed_fp) {
+            if (crosses_start_threshold || remains_armed) {
                 cap_velocity(cfg, &velocity_hwheel_fp, &velocity_wheel_fp, normalization_mult,
                              normalization_div);
                 data->velocity_hwheel_fp = velocity_hwheel_fp;
@@ -283,7 +304,8 @@ static int inertia_handle_event(const struct device *dev, struct input_event *ev
                         (long long)velocity_hwheel_fp, (long long)velocity_wheel_fp,
                         (unsigned long long)speed_fp);
             } else {
-                // Fine/slow scrolling must never leave an older flick armed.
+                // Slow scrolling never arms from idle. Once armed, the lower
+                // stop threshold provides hysteresis through the flick's tail.
                 stop_locked(data);
             }
         }
@@ -303,7 +325,8 @@ static int inertia_init(const struct device *dev) {
     struct inertia_data *data = dev->data;
 
     if (cfg->start_speed == 0U || cfg->tick_ms == 0U || cfg->start_delay_ms == 0U ||
-        cfg->sample_timeout_ms == 0U || cfg->friction_permille >= INERTIA_FACTOR_SCALE ||
+        cfg->min_dt_ms == 0U || cfg->sample_timeout_ms < cfg->min_dt_ms ||
+        cfg->friction_permille >= INERTIA_FACTOR_SCALE ||
         cfg->stop_speed >= cfg->start_speed || cfg->max_speed < cfg->start_speed) {
         LOG_ERR("Invalid trackball scroll inertia configuration");
         return -EINVAL;
@@ -330,6 +353,7 @@ static const struct zmk_input_processor_driver_api inertia_driver_api = {
         .friction_permille = DT_INST_PROP(n, friction_permille),                                  \
         .tick_ms = DT_INST_PROP(n, tick_ms),                                                      \
         .start_delay_ms = DT_INST_PROP(n, start_delay_ms),                                        \
+        .min_dt_ms = DT_INST_PROP(n, min_dt_ms),                                                  \
         .sample_timeout_ms = DT_INST_PROP(n, sample_timeout_ms),                                  \
         .reverse_cancel_threshold = DT_INST_PROP(n, reverse_cancel_threshold),                    \
     };                                                                                            \

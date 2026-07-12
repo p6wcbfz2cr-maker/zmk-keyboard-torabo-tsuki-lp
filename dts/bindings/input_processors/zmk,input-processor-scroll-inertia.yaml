@@ -44,6 +44,11 @@ properties:
     default: 12
     description: Quiet period after the last real sample before inertia starts.
 
+  min-dt-ms:
+    type: int
+    default: 4
+    description: Minimum interval used for speed calculation when samples share a millisecond.
+
   sample-timeout-ms:
     type: int
     default: 50

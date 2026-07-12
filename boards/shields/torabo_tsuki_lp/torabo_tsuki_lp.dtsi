@@ -136,6 +136,7 @@
         friction-permille = <940>;
         tick-ms = <8>;
         start-delay-ms = <12>;
+        min-dt-ms = <4>;
         sample-timeout-ms = <50>;
         reverse-cancel-threshold = <1>;
     };
