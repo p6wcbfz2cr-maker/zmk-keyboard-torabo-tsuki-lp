@@ -42,7 +42,7 @@ properties:
   tail-friction-permille:
     type: int
     default: 985
-    description: Velocity and residual retained after each tick during the soft stopping phase.
+    description: Velocity and residual retained near stop-speed; interpolated from friction-permille across the soft stopping phase.
 
   tick-ms:
     type: int

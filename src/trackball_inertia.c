@@ -140,6 +140,25 @@ static int16_t movement_for_tick(int64_t velocity_fp, uint16_t tick_ms, int64_t 
     return (int16_t)CLAMP(movement, INT16_MIN, INT16_MAX);
 }
 
+static uint16_t soft_tail_friction(const struct inertia_config *cfg, uint64_t speed_fp) {
+    uint64_t tail_speed_fp = (uint64_t)cfg->tail_speed * VELOCITY_FP_SCALE;
+    uint64_t stop_speed_fp = (uint64_t)cfg->stop_speed * VELOCITY_FP_SCALE;
+
+    if (speed_fp >= tail_speed_fp) {
+        return cfg->friction_permille;
+    }
+
+    uint64_t range = tail_speed_fp - stop_speed_fp;
+    uint64_t distance_into_tail = tail_speed_fp - MAX(speed_fp, stop_speed_fp);
+    uint64_t progress = MIN((distance_into_tail * INERTIA_FACTOR_SCALE) / range,
+                            INERTIA_FACTOR_SCALE);
+    int32_t friction_delta =
+        (int32_t)cfg->tail_friction_permille - (int32_t)cfg->friction_permille;
+
+    return (uint16_t)((int32_t)cfg->friction_permille +
+                      (friction_delta * (int32_t)progress) / INERTIA_FACTOR_SCALE);
+}
+
 static void inertia_tick_work(struct k_work *work) {
     struct k_work_delayable *delayable = k_work_delayable_from_work(work);
     struct inertia_data *data = CONTAINER_OF(delayable, struct inertia_data, tick_work);
@@ -165,18 +184,17 @@ static void inertia_tick_work(struct k_work *work) {
         data->tail_active = true;
     }
 
-    uint16_t friction = data->tail_active ? cfg->tail_friction_permille : cfg->friction_permille;
+    uint16_t friction = data->tail_active ? soft_tail_friction(cfg, current_speed_fp)
+                                           : cfg->friction_permille;
     data->velocity_hwheel_fp = (data->velocity_hwheel_fp * friction) / INERTIA_FACTOR_SCALE;
     data->velocity_wheel_fp = (data->velocity_wheel_fp * friction) / INERTIA_FACTOR_SCALE;
 
-    // The soft tail damps the fractional residue as well as the velocity.
-    // This keeps a nearly-complete residual from becoming an isolated final
-    // scroll event when the tail reaches its stop threshold.
+    // The soft tail damps the fractional residue with the same continuously
+    // interpolated factor as the velocity. This avoids both a friction step
+    // at tail entry and an isolated final scroll event at tail exit.
     if (data->tail_active) {
-        data->remainder_hwheel =
-            (data->remainder_hwheel * cfg->tail_friction_permille) / INERTIA_FACTOR_SCALE;
-        data->remainder_wheel =
-            (data->remainder_wheel * cfg->tail_friction_permille) / INERTIA_FACTOR_SCALE;
+        data->remainder_hwheel = (data->remainder_hwheel * friction) / INERTIA_FACTOR_SCALE;
+        data->remainder_wheel = (data->remainder_wheel * friction) / INERTIA_FACTOR_SCALE;
     }
 
     uint64_t speed_fp = normalized_speed_fp(data->velocity_hwheel_fp, data->velocity_wheel_fp,
