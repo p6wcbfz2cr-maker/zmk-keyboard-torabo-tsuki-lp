@@ -13,6 +13,15 @@
 // pre-scaler speed domain. For example, a preceding 2/100 scaler uses 100/2,
 // while a 40/100 scaler uses 100/40. This allows one set of thresholds and one
 // shared inertia state to work across the Mac and Windows scroll profiles.
+//
+// macOS does not honor the HID wheel resolution multiplier for third-party
+// mice, so every scroll count this processor emits is read back as one whole
+// "click" (a fixed number of lines), regardless of CONFIG_ZMK_POINTING_SMOOTH_SCROLLING.
+// A click train therefore only reads as continuous while consecutive clicks
+// stay well under the ~100ms human perception threshold for a gap. Rather
+// than let friction decay the velocity all the way down through a sparse,
+// widely-spaced tail, max-click-interval-ms stops inertia outright once the
+// unnormalized (actual post-scaler) click rate would fall below that floor.
 
 #define DT_DRV_COMPAT zmk_input_processor_scroll_inertia
 
@@ -41,14 +50,14 @@ struct inertia_config {
     uint32_t start_speed;
     uint32_t stop_speed;
     uint32_t max_speed;
-    uint32_t tail_speed;
     uint16_t friction_permille;
-    uint16_t tail_friction_permille;
     uint16_t tick_ms;
     uint16_t start_delay_ms;
     uint16_t min_dt_ms;
     uint16_t sample_timeout_ms;
     uint16_t reverse_cancel_threshold;
+    uint16_t max_click_interval_ms;
+    uint32_t min_velocity_fp;
 };
 
 struct inertia_data {
@@ -67,7 +76,6 @@ struct inertia_data {
     uint32_t normalization_div;
 
     bool active;
-    bool tail_active;
     atomic_t generation;
     atomic_t scheduled_generation;
 };
@@ -111,7 +119,6 @@ static bool axis_opposes(int32_t movement, int64_t velocity_fp, uint16_t thresho
 
 static void stop_locked(struct inertia_data *data) {
     data->active = false;
-    data->tail_active = false;
     data->velocity_hwheel_fp = 0;
     data->velocity_wheel_fp = 0;
     data->remainder_hwheel = 0;
@@ -140,25 +147,6 @@ static int16_t movement_for_tick(int64_t velocity_fp, uint16_t tick_ms, int64_t 
     return (int16_t)CLAMP(movement, INT16_MIN, INT16_MAX);
 }
 
-static uint16_t soft_tail_friction(const struct inertia_config *cfg, uint64_t speed_fp) {
-    uint64_t tail_speed_fp = (uint64_t)cfg->tail_speed * VELOCITY_FP_SCALE;
-    uint64_t stop_speed_fp = (uint64_t)cfg->stop_speed * VELOCITY_FP_SCALE;
-
-    if (speed_fp >= tail_speed_fp) {
-        return cfg->friction_permille;
-    }
-
-    uint64_t range = tail_speed_fp - stop_speed_fp;
-    uint64_t distance_into_tail = tail_speed_fp - MAX(speed_fp, stop_speed_fp);
-    uint64_t progress = MIN((distance_into_tail * INERTIA_FACTOR_SCALE) / range,
-                            INERTIA_FACTOR_SCALE);
-    int32_t friction_delta =
-        (int32_t)cfg->tail_friction_permille - (int32_t)cfg->friction_permille;
-
-    return (uint16_t)((int32_t)cfg->friction_permille +
-                      (friction_delta * (int32_t)progress) / INERTIA_FACTOR_SCALE);
-}
-
 static void inertia_tick_work(struct k_work *work) {
     struct k_work_delayable *delayable = k_work_delayable_from_work(work);
     struct inertia_data *data = CONTAINER_OF(delayable, struct inertia_data, tick_work);
@@ -176,34 +164,19 @@ static void inertia_tick_work(struct k_work *work) {
         return;
     }
 
-    uint64_t tail_speed_fp = (uint64_t)cfg->tail_speed * VELOCITY_FP_SCALE;
-    uint64_t current_speed_fp =
-        normalized_speed_fp(data->velocity_hwheel_fp, data->velocity_wheel_fp,
-                            data->normalization_mult, data->normalization_div);
-    if (!data->tail_active && current_speed_fp <= tail_speed_fp) {
-        data->tail_active = true;
-    }
-
-    uint16_t friction = data->tail_active ? soft_tail_friction(cfg, current_speed_fp)
-                                           : cfg->friction_permille;
-    data->velocity_hwheel_fp = (data->velocity_hwheel_fp * friction) / INERTIA_FACTOR_SCALE;
-    data->velocity_wheel_fp = (data->velocity_wheel_fp * friction) / INERTIA_FACTOR_SCALE;
-
-    // The soft tail damps the fractional residue with the same continuously
-    // interpolated factor as the velocity. This avoids both a friction step
-    // at tail entry and an isolated final scroll event at tail exit.
-    if (data->tail_active) {
-        data->remainder_hwheel = (data->remainder_hwheel * friction) / INERTIA_FACTOR_SCALE;
-        data->remainder_wheel = (data->remainder_wheel * friction) / INERTIA_FACTOR_SCALE;
-    }
+    data->velocity_hwheel_fp =
+        (data->velocity_hwheel_fp * cfg->friction_permille) / INERTIA_FACTOR_SCALE;
+    data->velocity_wheel_fp =
+        (data->velocity_wheel_fp * cfg->friction_permille) / INERTIA_FACTOR_SCALE;
 
     uint64_t speed_fp = normalized_speed_fp(data->velocity_hwheel_fp, data->velocity_wheel_fp,
                                             data->normalization_mult, data->normalization_div);
     uint64_t stop_speed_fp = (uint64_t)cfg->stop_speed * VELOCITY_FP_SCALE;
+    // Unnormalized (actual post-scaler) speed, used against the click-rate
+    // floor below. See the file header comment on max-click-interval-ms.
+    uint64_t actual_speed_fp = approx_speed_fp(data->velocity_hwheel_fp, data->velocity_wheel_fp);
 
-    if (speed_fp < stop_speed_fp) {
-        // The soft tail has already reduced the final sub-count remainder.
-        // Discard it here rather than emitting a discrete final scroll jump.
+    if (speed_fp < stop_speed_fp || actual_speed_fp < cfg->min_velocity_fp) {
         stop_locked(data);
         k_spin_unlock(&data->lock, key);
         return;
@@ -326,8 +299,13 @@ static int inertia_handle_event(const struct device *dev, struct input_event *ev
                                                     normalization_mult, normalization_div);
             uint64_t start_speed_fp = (uint64_t)cfg->start_speed * VELOCITY_FP_SCALE;
             uint64_t stop_speed_fp = (uint64_t)cfg->stop_speed * VELOCITY_FP_SCALE;
-            bool crosses_start_threshold = speed_fp >= start_speed_fp;
-            bool remains_armed = data->active && speed_fp >= stop_speed_fp;
+            // Actual (unnormalized) speed must also clear the click-rate
+            // floor, or the tick handler would stop it on its very first
+            // run. See the file header comment on max-click-interval-ms.
+            uint64_t actual_speed_fp = approx_speed_fp(velocity_hwheel_fp, velocity_wheel_fp);
+            bool clears_click_floor = actual_speed_fp >= cfg->min_velocity_fp;
+            bool crosses_start_threshold = speed_fp >= start_speed_fp && clears_click_floor;
+            bool remains_armed = data->active && speed_fp >= stop_speed_fp && clears_click_floor;
 
             if (crosses_start_threshold || remains_armed) {
                 cap_velocity(cfg, &velocity_hwheel_fp, &velocity_wheel_fp, normalization_mult,
@@ -339,7 +317,6 @@ static int inertia_handle_event(const struct device *dev, struct input_event *ev
                 data->normalization_mult = normalization_mult;
                 data->normalization_div = normalization_div;
                 data->active = true;
-                data->tail_active = false;
                 atomic_set(&data->scheduled_generation, generation);
                 schedule = true;
 
@@ -369,10 +346,9 @@ static int inertia_init(const struct device *dev) {
 
     if (cfg->start_speed == 0U || cfg->tick_ms == 0U || cfg->start_delay_ms == 0U ||
         cfg->min_dt_ms == 0U || cfg->sample_timeout_ms < cfg->min_dt_ms ||
-        cfg->tail_speed <= cfg->stop_speed || cfg->tail_speed > cfg->max_speed ||
         cfg->friction_permille >= INERTIA_FACTOR_SCALE ||
-        cfg->tail_friction_permille >= INERTIA_FACTOR_SCALE ||
-        cfg->stop_speed >= cfg->start_speed || cfg->max_speed < cfg->start_speed) {
+        cfg->stop_speed >= cfg->start_speed || cfg->max_speed < cfg->start_speed ||
+        cfg->max_click_interval_ms == 0U || cfg->max_click_interval_ms < cfg->tick_ms) {
         LOG_ERR("Invalid trackball scroll inertia configuration");
         return -EINVAL;
     }
@@ -395,14 +371,15 @@ static const struct zmk_input_processor_driver_api inertia_driver_api = {
         .start_speed = DT_INST_PROP(n, start_speed),                                              \
         .stop_speed = DT_INST_PROP(n, stop_speed),                                                \
         .max_speed = DT_INST_PROP(n, max_speed),                                                  \
-        .tail_speed = DT_INST_PROP(n, tail_speed),                                                \
         .friction_permille = DT_INST_PROP(n, friction_permille),                                  \
-        .tail_friction_permille = DT_INST_PROP(n, tail_friction_permille),                        \
         .tick_ms = DT_INST_PROP(n, tick_ms),                                                      \
         .start_delay_ms = DT_INST_PROP(n, start_delay_ms),                                        \
         .min_dt_ms = DT_INST_PROP(n, min_dt_ms),                                                  \
         .sample_timeout_ms = DT_INST_PROP(n, sample_timeout_ms),                                  \
         .reverse_cancel_threshold = DT_INST_PROP(n, reverse_cancel_threshold),                    \
+        .max_click_interval_ms = DT_INST_PROP(n, max_click_interval_ms),                          \
+        .min_velocity_fp = DIV_ROUND_UP(VELOCITY_FP_SCALE * MS_PER_SECOND,                        \
+                                        DT_INST_PROP(n, max_click_interval_ms)),                  \
     };                                                                                            \
     DEVICE_DT_INST_DEFINE(n, inertia_init, NULL, &inertia_data_##n, &inertia_config_##n,          \
                           POST_KERNEL, CONFIG_KERNEL_INIT_PRIORITY_DEFAULT, &inertia_driver_api);

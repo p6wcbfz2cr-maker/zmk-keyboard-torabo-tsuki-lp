@@ -124,23 +124,26 @@
     // Trackball scroll inertia processor (see src/trackball_inertia.c).
     // It observes REL_HWHEEL/REL_WHEEL after scaling, mapping, and scroll-snap.
     // The processor's two cells normalize the preceding scaler to a common
-    // speed domain (e.g. 100/2 for Mac and 100/40 for Windows). Synthetic
+    // speed domain (e.g. 100/6 for Mac and 100/40 for Windows). Synthetic
     // scroll reports use the dedicated listener below, so they do not pass
     // through transform/scaler/mapper/snap a second time.
+    // max-click-interval-ms stops inertia once the actual (post-scaler)
+    // click rate would fall below one click per 100ms, since macOS reads
+    // every scroll count as one whole click regardless of resolution
+    // multiplier support (see the file header comment in trackball_inertia.c).
     zip_scroll_inertia: zip_scroll_inertia {
         compatible = "zmk,input-processor-scroll-inertia";
         #input-processor-cells = <2>;
         start-speed = <10>;
         stop-speed = <1>;
         max-speed = <1000>;
-        tail-speed = <100>;
-        friction-permille = <950>;
-        tail-friction-permille = <900>;
+        friction-permille = <980>;
         tick-ms = <8>;
         start-delay-ms = <12>;
         min-dt-ms = <4>;
         sample-timeout-ms = <50>;
         reverse-cancel-threshold = <1>;
+        max-click-interval-ms = <100>;
     };
 
     inertia_listener: inertia_listener {
