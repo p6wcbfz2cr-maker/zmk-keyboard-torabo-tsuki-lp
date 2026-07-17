@@ -1,0 +1,70 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
+description: |
+  Trackball scroll inertia input processor. It observes post-scaled and snapped
+  REL_HWHEEL/REL_WHEEL samples and emits decaying scroll events from a virtual
+  input device after a sufficiently fast flick ends.
+
+  The two input-processor cells normalize the preceding scaler back to a common
+  speed domain: normalization multiplier followed by normalization divisor.
+  For example, use <&zip_scroll_inertia 100 2> after a 2/100 scaler and
+  <&zip_scroll_inertia 100 40> after a 40/100 scaler.
+
+compatible: "zmk,input-processor-scroll-inertia"
+
+include: ip_two_param.yaml
+
+properties:
+  start-speed:
+    type: int
+    default: 10
+    description: Minimum normalized speed in counts per second required to arm inertia.
+
+  stop-speed:
+    type: int
+    default: 1
+    description: Stop inertia below this normalized speed in counts per second.
+
+  max-speed:
+    type: int
+    default: 1000
+    description: Maximum normalized speed captured for inertia.
+
+  tail-speed:
+    type: int
+    default: 100
+    description: Normalized speed below which to enter the soft stopping phase.
+
+  friction-permille:
+    type: int
+    default: 950
+    description: Velocity retained after each tick, where 1000 means no friction.
+
+  tail-friction-permille:
+    type: int
+    default: 985
+    description: Velocity and residual retained near stop-speed; interpolated from friction-permille across the soft stopping phase.
+
+  tick-ms:
+    type: int
+    default: 8
+    description: Interval in milliseconds between synthetic scroll reports.
+
+  start-delay-ms:
+    type: int
+    default: 12
+    description: Quiet period after the last real sample before inertia starts.
+
+  min-dt-ms:
+    type: int
+    default: 4
+    description: Minimum interval used for speed calculation when samples share a millisecond.
+
+  sample-timeout-ms:
+    type: int
+    default: 50
+    description: Gap after which a sample is treated as a fresh movement with no usable velocity.
+
+  reverse-cancel-threshold:
+    type: int
+    default: 1
+    description: Minimum opposite scroll count that immediately cancels pending inertia.
