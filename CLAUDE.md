@@ -59,6 +59,10 @@ src/                        ← カスタムCコード（board.c=分割電源管
 | Mouse_Fast | 8 | 高速カーソル（mouseレイヤー中に `a`/`s`/`d`/`f` 長押し） |
 | Trackball_Gesture | 9 | トラックボールジェスチャー（現在トリガー未割当・廃止済み。詳細は後述） |
 
+### macOS側のキー入れ替え運用（Karabiner Elements）
+
+このキーボードはWindowsとMac（およびiPad）で併用している。OSごとに異なる`Opt`/`Cmd`配置は、キーボード側のレイヤーではなくmacOS側のKarabiner Elementsで吸収する運用にしている（torabo-tsuki使用時、Karabiner ElementsでOptとCmdを入れ替える設定）。レイヤーの違いでこの入れ替えロジックが変わってしまうことを避けたいため、キーマップ側は常にWindows配列に統一しておき、Mac/iPad側のOS設定で最終的な配置を変える。右側最下段の右から2番目のキーがMac/Winレイヤーとも`&kp RIGHT_ALT`で統一されているのはこのため（Macレイヤーであっても`&kp LEFT_GUI`などにはしない）。
+
 ### 主要なカスタムビヘイビア
 
 - **`mt_idle`**: `require-prior-idle-ms = <150>` 付き Mod-Tap。`flavor = "hold-preferred"`（既定はbalancedだったが、割り込みキーとの相対タイミングで判定が揺れる問題があり変更。経緯は `plans/06_mt_idle_lt_flavor_hold_preferred.md` 参照）。`require-prior-idle-ms` は一度80msまで下げたが、hold-preferred化で「ローマ字入力のロールオーバー（za/zu/zo等）がShift+母音に誤爆する」問題が出たため150msへ再度引き上げた（経緯は `plans/07_mt_idle_require_prior_idle_re_raise.md` 参照）。タイピングエリアのホームポジション修飾キー（`a`=右Ctrl、`/`=右Shift、Number/Functionレイヤーの同ポジション）に使用。高速打鍵時の誤爆防止。Macレイヤーの`z`（旧・左Shift）は単純な`&kp Z`に変更済みで`mt_idle`ではない（左Shiftは左親指の`&mt LEFT_SHIFT TAB`で引き続き使える）。Number/Functionレイヤーの同ポジション（`N6`/`F11`）は`mt_idle LEFT_SHIFT`のまま据え置き。
