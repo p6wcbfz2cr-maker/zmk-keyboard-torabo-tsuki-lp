@@ -124,9 +124,11 @@
     // Trackball scroll inertia processor (see src/trackball_inertia.c).
     // It observes REL_HWHEEL/REL_WHEEL after scaling, mapping, and scroll-snap.
     // The processor's two cells normalize the preceding scaler to a common
-    // speed domain (e.g. 100/6 for Mac and 100/40 for Windows). Synthetic
-    // scroll reports use the dedicated listener below, so they do not pass
-    // through transform/scaler/mapper/snap a second time.
+    // speed domain. Currently only scroll_win (Layer 7, 100/40) uses it;
+    // scroll_mac (Layer 6) does not (Mac scrolling relies on Mac Mouse Fix
+    // instead; see plans/05_trackball_inertia.md). Synthetic scroll reports
+    // use the dedicated listener below, so they do not pass through
+    // transform/scaler/mapper/snap a second time.
     // max-click-interval-ms stops inertia once the actual (post-scaler)
     // click rate would fall below one click per 100ms, since macOS reads
     // every scroll count as one whole click regardless of resolution
