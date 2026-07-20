@@ -6,7 +6,7 @@
 
 通常カーソル、Slow Mouse、オートマウス、トラックボールジェスチャー、クリックには慣性を適用しない。
 
-現在は `scroll_win`（Layer 7、Windowsモード）にのみ適用する。`scroll_mac`（Layer 6）は慣性導入前の設定（`zip_xy_transform (INPUT_TRANSFORM_X_INVERT)` のみ、`zip_scroll_inertia` 参照なし）に戻してあり、慣性は適用しない。Mac側のスクロール慣性は Mac Mouse Fix（macOS用のサードパーティ製ユーティリティ）に委ねる方針とし、ファームウェア側では扱わない。
+本設計は `scroll_win`（Layer 7、Windowsモード）向けに実装した（`scroll_mac`, Layer 6は慣性導入前の設定に戻してあり、対象外。Mac側のスクロール慣性は Mac Mouse Fix に委ねる方針）。現在は`scroll_win`側も無効化している。詳細は末尾の「現状（無効化）」節を参照。
 
 ## 入力経路
 
@@ -88,3 +88,9 @@ Mac経路（`scroll_mac`, Layer 6）は慣性を使わないため `zip_scroll_i
 4. 止まり際がまだ硬い/唐突に感じる場合は `max-click-interval-ms` を100→120程度へ上げる（フロアを緩め、より疎な間隔まで許容する）。
 
 一度に複数の値を変えず、この順番で一項目ずつ実機確認する。
+
+## 現状（無効化）
+
+Windowsで実際に使用したところ、Excelのスクロールで「止めたい場所で止まらない」オーバーシュートが発生し、生産性が落ちる問題が出た。レートフロア方式で離散クリックのブツ切れ感は解消できたが、慣性はフリック後も動き続ける性質そのものが精密な停止操作とは相反するため、パラメータ調整では解消できないと判断し、`config/keymap.keymap` の `scroll_win`（Layer 7）と `snippets/input-split-listener/input-split-listener.overlay` の `scroll_win`（split側）両方から `zip_scroll_inertia` の参照を外して無効化した。Mac側（`scroll_mac`）は元から慣性を使っていないため変更なし。
+
+`zip_scroll_inertia`ノード本体（`torabo_tsuki_lp.dtsi`）、C実装（`src/trackball_inertia.c`）、devicetreeバインディングは削除していない。将来再調整したくなった場合は、`keymap.keymap`と`input-split-listener.overlay`の該当チェーン末尾に`<&zip_scroll_inertia 100 <正規化倍率>>`（通常: 40、split: 2）を1行足すだけで、本ドキュメントに記録した設計（レートフロア含む）のまま復元できる。
