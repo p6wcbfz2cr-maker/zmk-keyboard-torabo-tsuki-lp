@@ -29,20 +29,10 @@ properties:
     default: 1000
     description: Maximum normalized speed captured for inertia.
 
-  tail-speed:
-    type: int
-    default: 100
-    description: Normalized speed below which to enter the soft stopping phase.
-
   friction-permille:
     type: int
     default: 950
     description: Velocity retained after each tick, where 1000 means no friction.
-
-  tail-friction-permille:
-    type: int
-    default: 985
-    description: Velocity and residual retained near stop-speed; interpolated from friction-permille across the soft stopping phase.
 
   tick-ms:
     type: int
@@ -68,3 +58,14 @@ properties:
     type: int
     default: 1
     description: Minimum opposite scroll count that immediately cancels pending inertia.
+
+  max-click-interval-ms:
+    type: int
+    default: 100
+    description: |
+      Stop inertia once decay would space consecutive scroll clicks farther
+      apart than this, in the actual (unnormalized, post-scaler) speed
+      domain. Hosts that treat each scroll count as one whole click (e.g.
+      macOS, which does not honor the HID wheel resolution multiplier) only
+      read a click train as continuous motion below this gap; stopping here
+      avoids trailing off through a sparse, individually-perceptible tail.
