@@ -181,15 +181,15 @@
             // L size layout indices (bottom-row right N M , . / + home-row J K L)
             46 47 48 49 50
             33 34 35
-            58 // left thumb-right (lt 9 TAB) = auto-mouse cancel key (exit_mouse_macro)
+            56 57 58 // left thumb-right 3 keys (Number-space/Shift-Tab/Backspace) = auto-mouse cancel keys (exit_mouse_macro)
             // M size layout indices (bottom-row right + home-row J K L)
             32 33 34 35 36
             19 20 21
-            44 // left thumb-right cancel key
+            42 43 44 // left thumb-right 3 keys cancel keys
             // S size layout indices (bottom-row right + home-row J K L)
             27 28 29 30 31
             16 17 18
-            37 // left thumb-right cancel key
+            35 36 37 // left thumb-right 3 keys cancel keys
             // Local un-offset right half indices (just in case)
             39 40 41 42 43
         >;

@@ -67,7 +67,7 @@ src/                        ← カスタムCコード（board.c=分割電源管
 
 - **`mt_idle`**: `require-prior-idle-ms = <150>` 付き Mod-Tap。`flavor = "hold-preferred"`（既定はbalancedだったが、割り込みキーとの相対タイミングで判定が揺れる問題があり変更。経緯は `plans/06_mt_idle_lt_flavor_hold_preferred.md` 参照）。`require-prior-idle-ms` は一度80msまで下げたが、hold-preferred化で「ローマ字入力のロールオーバー（za/zu/zo等）がShift+母音に誤爆する」問題が出たため150msへ再度引き上げた（経緯は `plans/07_mt_idle_require_prior_idle_re_raise.md` 参照）。タイピングエリアのホームポジション修飾キー（`a`=右Ctrl、`/`=右Shift、Number/Functionレイヤーの同ポジション）に使用。高速打鍵時の誤爆防止。Macレイヤーの`z`（旧・左Shift）は単純な`&kp Z`に変更済みで`mt_idle`ではない（左Shiftは左親指の`&mt LEFT_SHIFT TAB`で引き続き使える）。Number/Functionレイヤーの同ポジション（`N6`/`F11`）は`mt_idle LEFT_SHIFT`のまま据え置き。
 - **`lt_idle`**: 同じく `require-prior-idle-ms = <125>` 付き Layer-Tap。`flavor = "tap-preferred"`（既定のまま、今回変更なし）。`;` キーのスクロールレイヤー遷移に使用。
-- **`exit_mouse_macro`**: マクロ。`mouse` レイヤー（Layer 5）を OFF 専用の `tog_off 5` で解除する。mouseレイヤーの左手最下段・右から3キー（Macレイヤーの`&lt 2 SPACE`/`&mt LEFT_SHIFT TAB`/`&kp BACKSPACE`に相当する位置）に配置。
+- **`exit_mouse_macro`**: マクロ。`mouse` レイヤー（Layer 5）を OFF 専用の `tog_off 5` で解除する。mouseレイヤーの左手最下段・右から3キー（Macレイヤーの`&lt 2 SPACE`/`&mt LEFT_SHIFT TAB`/`&kp BACKSPACE`に相当する位置、L layoutではposition 56/57/58）に配置。**重要**: `exit_mouse_macro`を配置したキーポジションは、必ず`zip_temp_layer`（`&pointing_listener`内、下記）の`excluded-positions`にも登録すること。登録し忘れると、そのキーを押した瞬間に（`exit_mouse_macro`が実行される前に）ZMK標準の「キー入力でauto-mouseレイヤーを即時無効化する」動作が先に働き、mouseレイヤーが外れてから下位レイヤー（Mac/Win）の元のバインディング（hold-tapの場合はそのtap側）が実行されてしまう。単純な`&kp`ならこの競合が起きても実害は小さいが、`&lt`/`&mt`のようなhold-tap系バインディングの位置に配置する場合は特に注意（タップ側の文字が誤って出力される）。
 
 ### `&mt`/`&lt` のグローバルoverride
 
@@ -104,7 +104,7 @@ src/                        ← カスタムCコード（board.c=分割電源管
 
 ### トラックボール入力処理（`pointing_listener`）
 
-通常時は `zip_xy_scaler 40 100`（40%速度）＋ `zip_temp_layer 5 1200`（1200ms で Layer 5 へ一時遷移）。
+通常時は `zip_xy_accel 65 120`（速度65%〜120%の可変、旧`zip_xy_scaler 65 100`を置き換え）＋ `zip_temp_layer 5 5000`（ポインタ操作でLayer 5へ遷移し、5000ms操作がなければ自動解除。`require-prior-idle-ms`とキー入力による即時解除の仕様は[ZMK公式ドキュメント](https://zmk.dev/docs/keymaps/input-processors/temp-layer)参照。`excluded-positions`に入れていないキー位置を押すと、そのキー入力だけでLayer 5が即時解除される点に注意——`exit_mouse_macro`の項も参照）。
 
 | プロファイル | 発火レイヤー | 速度 |
 |---|---|---|
