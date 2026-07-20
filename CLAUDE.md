@@ -56,7 +56,7 @@ src/                        ← カスタムCコード（board.c=分割電源管
 | mouse | 5 | オートマウス（トラックボール動作で自動遷移） |
 | Mouse_Scroll_Mac | 6 | Macスクロール（`;` 長押しで遷移） |
 | Mouse_Scroll_Win | 7 | Winスクロール（`;` 長押しで遷移） |
-| Mouse_Fast | 8 | 高速カーソル（mouseレイヤー中に `a`/`s`/`d`/`f` 長押し） |
+| Mouse_Slow | 8 | 低速カーソル（mouseレイヤー中に `a`/`s`/`d`/`f` 長押し） |
 | Trackball_Gesture | 9 | トラックボールジェスチャー（現在トリガー未割当・廃止済み。詳細は後述） |
 
 ### macOS側のキー入れ替え運用（Karabiner Elements）
@@ -91,7 +91,7 @@ src/                        ← カスタムCコード（board.c=分割電源管
 - **1モーション1アクション**: 連続した1回のボール移動につき1回だけ発火し、ボールが `GESTURE_IDLE_REARM_MS` の間アイドルになると再武装する（転がし続けても連射しない）。
 - **カーソル抑制**: `zip_gesture` が `ZMK_INPUT_PROC_STOP` を返し、後続プロセッサ（transform/temp_layer/scaler）を止めてカーソルを動かさない。値をゼロ化しないため検出は壊れない。
   - かつて `gesture_suppress`（`zip_xy_scaler 0`）で抑制を試みたが、scaler 0 が検出側の読み取り値もゼロ化して失敗。プロセッサ化（リスナー内で raw を読み STOP で抑制）で解消した。
-- **方向の調整（カーソル＝矢印を一致）**: `zip_gesture` の override にはカーソル base と**同じ `zip_xy_transform` フラグ**を前段に置いてあり（現状 `INPUT_TRANSFORM_X_INVERT | INPUT_TRANSFORM_Y_INVERT`）、矢印の向きは**常にカーソルの向きと一致**する。C 側の方向マッピングは画面座標規約（post-transform +X=右=RIGHT、+Y=下=DOWN）で固定なので、**向きの調整は `src/trackball_gesture.c` ではなく `&pointing_listener` の3か所の `zip_xy_transform` フラグ**（base / `fast_mouse` / `gesture` override）を**同一に**変更して行う。当初「矢印が逆」だったのは、ジェスチャー検出が transform を通らない生値を読んでいたため。override に同じ transform を追加して解消した（カーソルの `INVERT|INVERT` はそのまま正しい向き）。scroll レイヤー（6/7）の transform は別管理。
+- **方向の調整（カーソル＝矢印を一致）**: `zip_gesture` の override にはカーソル base と**同じ `zip_xy_transform` フラグ**を前段に置いてあり（現状 `INPUT_TRANSFORM_X_INVERT | INPUT_TRANSFORM_Y_INVERT`）、矢印の向きは**常にカーソルの向きと一致**する。C 側の方向マッピングは画面座標規約（post-transform +X=右=RIGHT、+Y=下=DOWN）で固定なので、**向きの調整は `src/trackball_gesture.c` ではなく `&pointing_listener` の3か所の `zip_xy_transform` フラグ**（base / `slow_mouse` / `gesture` override）を**同一に**変更して行う。当初「矢印が逆」だったのは、ジェスチャー検出が transform を通らない生値を読んでいたため。override に同じ transform を追加して解消した（カーソルの `INVERT|INVERT` はそのまま正しい向き）。scroll レイヤー（6/7）の transform は別管理。
 - **ジェスチャー中のカーソル抑制**: `zip_gesture` は `event->value = 0` にしたうえで `ZMK_INPUT_PROC_STOP` を返す（値ゼロ化＋チェーン停止の二重）。ただし抑制が効くのは**ジェスチャーレイヤーが実際に有効な間だけ**。トリガーをホールドタップ（例: 旧 `&lt 9 TAB`）にする場合、押してから hold 判定が確定する（tapping-term≈200ms）まではレイヤー9が未有効なので、その間にボールを動かすとカーソルが少し動く。押して一拍おいてから回すと完全に止まる。
 - **モジュール越しのリンク制約（重要）**: このリポジトリは ZMK の外部モジュール（`ZMK_EXTRA_MODULES`）として読み込まれる。実測では **`zmk_keymap_layer_active()` や `keymap.c` 由来のイベント（例 `zmk_layer_state_changed`）は外部モジュールからリンクできない**（`undefined reference`）。一方 `position_state_changed`/`activity_state_changed` 系や `raise_*`、入力プロセッサ API はリンクできる（`board.c` も同系統を使用）。そのため `zip_gesture` は**レイヤー問い合わせを一切せず**、「Layer 9 override の唯一のプロセッサとして配置されている＝呼ばれた時点で Layer 9」という構造でこれを回避している。新規 C コードで ZMK 本体関数を呼ぶ際はこの制約に注意。
 - **モジュールの dts_root**: カスタム binding を認識させるため `zephyr/module.yml` に `dts_root: .` が必要（`dts/bindings/` を検索対象に追加）。
@@ -109,9 +109,11 @@ src/                        ← カスタムCコード（board.c=分割電源管
 | プロファイル | 発火レイヤー | 速度 |
 |---|---|---|
 | デフォルト | — | 40% |
-| `fast_mouse` | Layer 8 | 100%（通常の約2.5倍） |
+| `slow_mouse` | Layer 8 | 40%（低速） |
 | `scroll_mac` | Layer 6 | スクロール（Mac方向） |
 | `scroll_win` | Layer 7 | スクロール（Win方向） |
+
+`slow_mouse`は`mouse`レイヤー（Layer5）内の`a`/`s`/`d`/`f`位置（L layoutでposition 25/26/27/28）に配置された`&mo 8`で起動する。このキー4つも`zip_temp_layer`の`excluded-positions`に登録済み（登録し忘れるとキー入力でLayer5が即時解除され、`&mo 8`ではなく下位レイヤーの文字が出力される。`exit_mouse_macro`の項の注意点と同じ理由）。
 
 ### 物理レイアウト
 
