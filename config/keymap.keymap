@@ -134,7 +134,16 @@
         exit_mouse_macro: exit_mouse_macro {
             compatible = "zmk,behavior-macro";
             #binding-cells = <0>;
-            bindings = <&macro_tap>, <&tog_off 5>;
+            /* &kp 0 = HID usage 0 ("Reserved", no key). It presses/releases an
+             * already-empty report slot, so the host sees nothing, but it still
+             * raises a real zmk_keycode_state_changed event. zip_temp_layer's
+             * require-prior-idle-ms (500ms, see zip_temp_layer node) only blocks
+             * re-activation after a HID keycode event - &tog_off is a toggle-layer
+             * behavior and does not count. Without this, a pointer sample that
+             * arrives right after &tog_off (trackball settling / event-queue
+             * race) re-activates layer 5 immediately, making this key look like
+             * it did nothing when pressed right after moving the cursor. */
+            bindings = <&macro_tap>, <&kp 0>, <&tog_off 5>;
         };
     };
 
