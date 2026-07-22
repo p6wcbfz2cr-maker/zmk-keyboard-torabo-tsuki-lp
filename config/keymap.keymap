@@ -188,13 +188,14 @@
                                         * 一切使わずtapping-term-ms満了時のみhold判定するため、
                                         * ローマ字ロールオーバー(z+a/z+u/z+o等)と原理的に衝突しない
                                         * 唯一のflavor。z専用に採用。 */
-            tapping-term-ms = <80>; /* 60msで実機投入したところ、Windowsで&kp Ctrl+Zが通らない
-                                      * (Zキーの押下実時間がtapping-term-msを超えhold=Shift誤判定
-                                      * される)頻度が高かったため80msへ引き上げ。短すぎると
-                                      * 通常のZタイプでも誤ってhold判定されるリスクが増える。 */
+            tapping-term-ms = <90>; /* 60ms→80ms→90msと実機フィードバックを受けて引き上げ。
+                                      * 短すぎるとWindowsでの&kp Ctrl+Z等、修飾キー併用時に
+                                      * Zキーの押下実時間がtapping-term-msを超えhold=Shift誤判定
+                                      * されやすい。長すぎると通常のZタイプの誤爆リスクが増える。 */
             quick-tap-ms = <0>;
-            require-prior-idle-ms = <150>; /* mt_idleと同じ値を流用。直前キーとの間隔が短ければ
-                                             * 強制的にtap扱いになる安全網としてそのまま機能する。 */
+            require-prior-idle-ms = <120>; /* mt_idleの150msを流用していたが体感で長く感じたため
+                                             * 120msへ短縮。直前キーとの間隔が短ければ強制的に
+                                             * tap扱いになる安全網（この値未満で必ずtap）。 */
             bindings = <&kp>, <&kp>;
         };
     };
