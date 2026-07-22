@@ -188,8 +188,10 @@
                                         * 一切使わずtapping-term-ms満了時のみhold判定するため、
                                         * ローマ字ロールオーバー(z+a/z+u/z+o等)と原理的に衝突しない
                                         * 唯一のflavor。z専用に採用。 */
-            tapping-term-ms = <60>; /* 暫定値。50〜80msの範囲で実機タイピングしながら調整すること。
-                                      * 短すぎると通常のZタイプでも誤ってhold判定されるリスクが増える。 */
+            tapping-term-ms = <80>; /* 60msで実機投入したところ、Windowsで&kp Ctrl+Zが通らない
+                                      * (Zキーの押下実時間がtapping-term-msを超えhold=Shift誤判定
+                                      * される)頻度が高かったため80msへ引き上げ。短すぎると
+                                      * 通常のZタイプでも誤ってhold判定されるリスクが増える。 */
             quick-tap-ms = <0>;
             require-prior-idle-ms = <150>; /* mt_idleと同じ値を流用。直前キーとの間隔が短ければ
                                              * 強制的にtap扱いになる安全網としてそのまま機能する。 */
