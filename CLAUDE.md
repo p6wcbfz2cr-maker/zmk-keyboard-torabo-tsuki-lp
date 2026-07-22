@@ -51,7 +51,7 @@ src/                        ← カスタムCコード（board.c=分割電源管
 | Mac | 0 | ベースレイヤー（macOS） |
 | Win | 1 | Windowsモード（`tog 1` で切替） |
 | Number | 2 | 数字・記号（左親指スペース長押し） |
-| Function | 3 | ファンクション・矢印・BT選択（右親指スペース長押し） |
+| Function | 3 | ファンクション・矢印・BT選択（右親指スペース長押し、または右手下から2段目一番左のLANGUAGE_1キー長押し） |
 | layer_4 | 4 | 左親指バックスペース長押し（未割当） |
 | mouse | 5 | オートマウス（トラックボール動作で自動遷移） |
 | Mouse_Scroll_Mac | 6 | Macスクロール（`;` 長押しで遷移） |
@@ -75,7 +75,7 @@ src/                        ← カスタムCコード（board.c=分割電源管
 `mt_idle`/`lt_idle`とは別に、ZMK標準ビヘイビアそのもの（`&mt`/`&lt`）にもグローバルoverrideを設定している（`config/keymap.keymap`の`behaviors {}`ブロック直後）。タイピングエリア外（親指キー等）で使われる素の`&mt`/`&lt`バインディング全般に適用される。
 
 - **`&mt`**: `tapping-term-ms = <200>`, `flavor = "balanced"`。
-- **`&lt`**: `tapping-term-ms = <200>`（ZMK既定と同値）, `flavor = "hold-preferred"`（既定のtap-preferredから変更）。`&lt 2 SPACE`/`&lt 3 SPACE`/`&lt 6 ENTER`/`&lt 7 ENTER`の4箇所に適用。`mt_idle`のflavor変更と同じ仮説（balanced/tap-preferredは割り込みキーとの相対タイミングで判定が揺れる）で導入した。誤ホールド（意図せずレイヤーが起動する）リスクは上がるトレードオフがある。詳細は `plans/06_mt_idle_lt_flavor_hold_preferred.md` を参照。
+- **`&lt`**: `tapping-term-ms = <200>`（ZMK既定と同値）, `flavor = "hold-preferred"`（既定のtap-preferredから変更）。`&lt 2 SPACE`/`&lt 3 SPACE`/`&lt 6 ENTER`/`&lt 7 ENTER`/`&lt 3 LANGUAGE_1`の5箇所に適用。`mt_idle`のflavor変更と同じ仮説（balanced/tap-preferredは割り込みキーとの相対タイミングで判定が揺れる）で導入した。誤ホールド（意図せずレイヤーが起動する）リスクは上がるトレードオフがある。詳細は `plans/06_mt_idle_lt_flavor_hold_preferred.md` を参照。`&lt 3 LANGUAGE_1`（Macレイヤー、右手下から2段目一番左、Win/Number/Functionの同ポジションは`&trans`で継承）はtap=LANGUAGE_1・hold=Functionレイヤー（右親指の`&lt 3 SPACE`と同じレイヤーへの別ルート）。
 
 ### トラックボールジェスチャー（方向→アクション）
 
