@@ -56,7 +56,7 @@ src/                        ← カスタムCコード（board.c=分割電源管
 | mouse | 5 | オートマウス（トラックボール動作で自動遷移） |
 | Mouse_Scroll_Mac | 6 | Macスクロール（`;` 長押しで遷移） |
 | Mouse_Scroll_Win | 7 | Winスクロール（`;` 長押しで遷移） |
-| Mouse_Slow | 8 | 低速カーソル（mouseレイヤー中に `a`/`s`/`d`/`f` 長押し） |
+| Mouse_Slow | 8 | 低速カーソル。トリガー予定だった`a`/`s`/`d`/`f`長押しは現状使えない（後述） |
 | Trackball_Gesture | 9 | トラックボールジェスチャー（現在トリガー未割当・廃止済み。詳細は後述） |
 
 ### macOS側のキー入れ替え運用（Karabiner Elements）
@@ -113,7 +113,7 @@ src/                        ← カスタムCコード（board.c=分割電源管
 | `scroll_mac` | Layer 6 | スクロール（Mac方向） |
 | `scroll_win` | Layer 7 | スクロール（Win方向） |
 
-`slow_mouse`は`mouse`レイヤー（Layer5）内の`a`/`s`/`d`/`f`位置（L layoutでposition 25/26/27/28）に配置された`&mo 8`で起動する。このキー4つも`zip_temp_layer`の`excluded-positions`に登録済み（登録し忘れるとキー入力でLayer5が即時解除され、`&mo 8`ではなく下位レイヤーの文字が出力される。`exit_mouse_macro`の項の注意点と同じ理由）。
+`slow_mouse`は`mouse`レイヤー（Layer5）内の`a`/`s`/`d`/`f`位置（L layoutでposition 25/26/27/28）に配置された`&mo 8`。**現在は`zip_temp_layer`の`excluded-positions`にあえて登録していない**（`exit_mouse_macro`の項の注意点と同じ理由で、登録するとこのキーを押した瞬間にLayer5が即時解除されず`&mo 8`が発動してしまう）。一度registerして実機投入した結果、「トラックボールを操作した直後（5000ms以内）にタイピングエリアの`a`（Macレイヤーで`mt_idle RIGHT_CONTROL A`＝右Ctrl）を押しても、Layer5経由で`&mo 8`が発動しCtrlとして機能しない」という副作用が発覚し、タイピングへの影響を避けるため撤回した（2026-07-22）。結果として`a`/`s`/`d`/`f`を押すと通常のキー入力と同様にLayer5が即時解除されるため、**この4キー経由でのMouse_Slow起動は現状事実上使えない**。再度使いたい場合は、これらとは別のトリガー位置を検討すること。
 
 ### 物理レイアウト
 

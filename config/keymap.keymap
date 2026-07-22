@@ -190,7 +190,6 @@
             // L size layout indices (bottom-row right N M , . / + home-row J K L)
             46 47 48 49 50
             33 34 35
-            25 26 27 28 // home-row A S D F = mo 8 (Mouse_Slow) trigger keys, must not cancel Layer 5
             56 57 58 // left thumb-right 3 keys (Number-space/Shift-Tab/Backspace) = auto-mouse cancel keys (exit_mouse_macro)
             // M size layout indices (bottom-row right + home-row J K L)
             32 33 34 35 36
